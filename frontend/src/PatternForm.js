@@ -8,8 +8,7 @@ class PatternForm extends Component {
             numColors:2,
             gaugeStitches:20,
             gaugeRows:26,
-            width:8,
-            height:6
+            width:8
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);

@@ -1,6 +1,7 @@
 from colorthief import ColorThief
 from PIL import Image, ImagePalette
 import os
+import numpy
 
 def get_pattern_stitch_counts(file,width,gauge):
     """
@@ -14,7 +15,8 @@ def get_pattern_stitch_counts(file,width,gauge):
     Returns:
         (int, int): Dimension of pattern in number of stitches (width, height).
     """
-    width_pixels, height_pixels = get_img_size(file)
+    img = Image.open(file)
+    width_pixels, height_pixels = img.size
     img_ratio = height_pixels/width_pixels
     height = width * img_ratio
     pattern_size = (width, height)
@@ -22,9 +24,9 @@ def get_pattern_stitch_counts(file,width,gauge):
     pattern_height_stitches = round(pattern_size[1] * gauge[1] / 4) # 4" gauge
     return pattern_width_stitches, pattern_height_stitches
 
-def get_palette(file):
+def get_palette(file,num_colors):
     """
-    Get color palette from an image.
+    Get a color palette from an image.
 
     Args:
         file (str): The filepath for the image.
@@ -33,10 +35,21 @@ def get_palette(file):
         PIL.ImagePalette.ImagePalette: The color palette of the image.
     """
     color_thief = ColorThief(file)
-    palette = color_thief.get_palette(color_count=num_colors,quality=5)
-    flat_palette = list(sum(palette,()))
-    pil_palette = ImagePalette.ImagePalette(mode='RGB',palette=flat_palette)
-    return pil_palette
+    colors = color_thief.get_palette(color_count=num_colors,quality=10)
+    return get_palette_from_colors(colors)
+
+def get_palette_from_colors(colors):
+    """
+    Given a list of colors, create a color palette.
+
+    Args:
+        colors (list of (int, int, int)): A list of RGB colors (R, G, B)
+
+    Return:
+        PIL.ImagePalette.ImagePalette: The resulting color palette.
+    """
+    flat_palette = list(sum(colors,()))
+    return ImagePalette.ImagePalette(mode='RGB',palette=flat_palette)
 
 def apply_palette(img,palette,out_file=None):
     """
@@ -54,42 +67,103 @@ def apply_palette(img,palette,out_file=None):
     palette_img = Image.new("P",(1,1))
     palette_img.putpalette(palette)
     converted_img = img.quantize(palette=palette_img, dither=Image.Dither.NONE)
+    converted_img = converted_img.convert('RGB')
     if out_file:
         converted_img.save(out_file)
     return converted_img
 
-def get_img_size(file):
+def create_stitch_chart(in_file,pattern_size,out_file=None,stitch_size=20):
     """
-    Get the size of an image in pixels.
+    Downsample in image to convert it to a stitch chart, with each square in the chart representing a stitch.
 
     Args:
-        file (str): The filepath for the image.
-
-    Returns:
-        (int, int): The size of the image in pixels
+        in_file (str): The filepath for the image to process.
+        pattern_size (int, int): Dimension of pattern in number of stitches (width, height).
+        out_file (str): The filepath to save the converted image (default None).
+        stitch_size (int): The length and width of each stitch in the chart, in pixels (default 20).
     """
-    img = Image.open(file)
-    return img.size
-
-def create_stitch_chart(in_file,pattern_size,out_file=None,stitch_size=20):
-    img = Image.open(in_file)
+    with Image.open(in_file) as img:
+        img.load()
+    img = img.convert('RGB')
     img.thumbnail(pattern_size)
     img = img.resize([int(stitch_size * s) for s in img.size],0)
     if out_file:
         img.save(out_file)
     return img
 
+def get_palette_distances(palette):
+    """
+    Given a color palette, calculate the Euclidian distances between each color and the other colors.
+
+    Args:
+        palette (PIL.ImagePalette.ImagePalette): A color palette.
+    
+    Returns:
+        list of ColorDistances: A list containing color pairs and the Euclidian distance between them, sorted by ascending distance.
+    """
+    distances = []
+    for color in palette.colors.keys():
+        for ref_color in palette.colors.keys():
+            dist = ColorDistance(color,ref_color)
+            dist.get_distance()
+            distances.append(dist)
+            # f.write(f"{color[0]}_{color[1]}_{color[2]},{ref_color[0]}_{ref_color[1]}_{ref_color[2]},{distance:.2f}\n")
+    distances.sort(key=lambda x: x.distance)
+    return distances
+
+def get_distinct_colors(palette,num_colors):
+    """
+    Filter down an image's color palette to the most visually distinct colors.
+
+    Args:
+        palette (PIL.ImagePalette.ImagePalette): The larger color palette to be filtered.
+        num_colors (int): The number of colors to select.
+
+    Returns:
+        PIL.ImagePalette.ImagePalette: The filtered color palette.
+    """
+    distances = get_palette_distances(palette)
+    excluded_colors = []
+    included_colors = []    
+    for distance in distances:
+        while (len(palette.colors.keys()) - len(excluded_colors) > num_colors):
+            if distance.distance != 0 and distance.color not in excluded_colors and distance.ref not in excluded_colors:
+                excluded_colors.append(distance.color)
+            else:
+                break
+    for color in palette.colors.keys():
+        if color not in excluded_colors:
+            included_colors.append(color)
+    return get_palette_from_colors(included_colors)
+
+class ColorDistance:
+    def __init__(self,color,ref):
+        self.color = color
+        self.ref = ref
+        self.distance = 0
+    
+    def get_distance(self):
+        self.distance = numpy.linalg.norm(numpy.array(self.ref) - numpy.array(self.color))
+        return self.distance
+    
 folder = os.path.dirname(__file__)
-in_file = os.path.join(folder,'tests\\input.png')
-out_file = os.path.join(folder,'tests\\processed.png')
-tmp_file = os.path.join(folder,'tests\\temp.png')
-num_colors = 10
+in_dir = os.path.join(folder,'tests\\input\\')
+out_dir = os.path.join(folder,'tests\\output\\')
+num_colors = 8
+contrast_scaling = 2.5
 gauge_stitches = 20 # gauge per 4" width
 gauge_rows = 26 # gauge per 4" height
-gauge = (gauge_stitches,gauge_rows)
-width_inches = 8.0
+width_inches = 12.0
 
-palette = get_palette(in_file)
-pattern_stitch_counts = get_pattern_stitch_counts(in_file,width_inches,gauge)
-chart = create_stitch_chart(in_file,pattern_stitch_counts,tmp_file)
-converted_img = apply_palette(chart,palette,out_file)
+files = [f for f in os.listdir(in_dir) if os.path.isdir(in_dir)]
+for file in files:
+    file_name, file_extension = os.path.splitext(file)
+    in_file = os.path.join(in_dir,file)
+    out_file = os.path.join(out_dir,f'{file_name}_processed{file_extension}')
+    debug_file = os.path.join(out_dir,f'{file_name}_debug{file_extension}')
+    gauge = (gauge_stitches,gauge_rows)
+    palette = get_palette(in_file,num_colors*contrast_scaling)
+    reduced_palette = get_distinct_colors(palette,num_colors)
+    pattern_stitch_counts = get_pattern_stitch_counts(in_file,width_inches,gauge)
+    chart = create_stitch_chart(in_file,pattern_stitch_counts,debug_file)
+    converted_img = apply_palette(chart,reduced_palette,out_file)

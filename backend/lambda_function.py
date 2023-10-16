@@ -67,7 +67,7 @@ def apply_palette(img,palette,out_file=None):
         PIL.Image: The resulting image converted to the color palette.
     """
     # create a palette-mapped image for use with PIL.Image.quantize
-    palette_img = Image.new("P",(1,1))
+    palette_img = Image.new('P',(1,1))
     palette_img.putpalette(palette)
     converted_img = img.quantize(palette=palette_img, dither=Image.Dither.NONE)
     converted_img = converted_img.convert('RGB')
@@ -150,70 +150,55 @@ class ColorDistance:
         return self.distance
    
 def respond(err, res=None):
+    if err: 
+        statusCode = 400
+        body = err
+    else: 
+        statusCode = 200
+        body = res
     return {
-        'statusCode': 200,
+        'statusCode': statusCode,
         'headers': {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Headers': 'Content-Type,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Allow-Origin',
             'Access-Control-Allow-Methods': '*',
             'Access-Control-Allow-Origin': '*'
         },
-        'body': 'Hello from Lambda!',
+        'body': body,
         'isBase64Encoded': False
     }
 
 def lambda_handler(event, context):
     try:
-        print("Received event: " + json.dumps(event))
-        if ('httpMethod' in event):
-            if event['httpMethod'] == "OPTIONS":
-                print("Received pre-flight request - httpMethod")
-                response = respond(None,"Success")
-                print(response)
-                return response
-            else:
-                print('Decoding image - httpMethod')
-                img = event['image']
-                img = img.decode('base64')
-                num_colors = event['num_colors']
-                gauge = (event['gauge']['stitches'],event['gauge']['rows'])
-                contrast_scaling = event['contrast_scaling']
-                width = event['width']
-                print("Getting color palette from image")
-                palette = get_palette(img,num_colors*contrast_scaling)
-                reduced_palette = get_distinct_colors(palette,num_colors)
-                print("Creating knitting pattern")
-                pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
-                chart = create_stitch_chart(img,pattern_stitch_counts)
-                converted_img = apply_palette(chart,reduced_palette)
-                converted_img_base64 = base64.b64encode(converted_img)
-                print("Created image")
-                return respond(None,converted_img_base64)
+        print('Received event: ' + json.dumps(event))
+        if event['httpMethod'] == 'OPTIONS':
+            print('Received pre-flight request')
+            response = respond(None,'Success')
+            print(response)
+            return response
         else:
-            if event['requestContext']['http']['method'] == 'OPTIONS':
-                print("Received pre-flight request - requestContext")
-                response = respond(None,"Successful pre-flight request")
-                print(response)
-                print("Returning 'OK'")
-                return "OK"
-            else:
-                print('Decoding image - requestContext')
-                img = event['image']
-                img = img.decode('base64')
-                num_colors = event['num_colors']
-                gauge = (event['gauge']['stitches'],event['gauge']['rows'])
-                contrast_scaling = event['contrast_scaling']
-                width = event['width']
-                print("Getting color palette from image")
-                palette = get_palette(img,num_colors*contrast_scaling)
-                reduced_palette = get_distinct_colors(palette,num_colors)
-                print("Creating knitting pattern")
-                pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
-                chart = create_stitch_chart(img,pattern_stitch_counts)
-                converted_img = apply_palette(chart,reduced_palette)
-                converted_img_base64 = base64.b64encode(converted_img)
-                print("Created image")
-                return converted_img_base64
+            print('Decoding image')
+            img = event['body']['image']
+            img = img.decode('base64')
+            num_colors = event['body']['num_colors']
+            gauge = (event['body']['gauge']['stitches'],event['body']['gauge']['rows'])
+            contrast_scaling = event['body']['contrast_scaling']
+            width = event['body']['width']
+            print('Getting color palette from image')
+            palette = get_palette(img,num_colors*contrast_scaling)
+            reduced_palette = get_distinct_colors(palette,num_colors)
+            print('Creating knitting pattern')
+            pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
+            chart = create_stitch_chart(img,pattern_stitch_counts)
+            converted_img = apply_palette(chart,reduced_palette)
+            converted_img_base64 = base64.b64encode(converted_img)
+            print('Created image')
+            response = respond(None,converted_img_base64)
+            print(response)
+            return response
     except Exception as err:
-        print("Exception",err)
-        return respond({"err": err})
+        message = f"Unexpected {str(type(err))}: {str(err.args[0])}"
+        print(message)
+        response = respond(message)
+        print(response)
+        return response

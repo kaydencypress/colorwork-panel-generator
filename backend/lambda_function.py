@@ -177,22 +177,33 @@ def lambda_handler(event, context):
             print(response)
             return response
         else:
+            print('Load request body')
+            body = json.loads(event['body'])
+            print('Will decode image:')
+            img = body['image']
+            print(img)
             print('Decoding image')
-            img = event['body']['image']
-            img = img.decode('base64')
-            num_colors = event['body']['num_colors']
-            gauge = (event['body']['gauge']['stitches'],event['body']['gauge']['rows'])
-            contrast_scaling = event['body']['contrast_scaling']
-            width = event['body']['width']
+            img = base64.b64decode(img)
+            print('Getting pattern settings')
+            num_colors = body['num_colors']
+            gauge = (body['gauge']['stitches'],body['gauge']['rows'])
+            contrast_scaling = body['contrast_scaling']
+            width = body['width']
             print('Getting color palette from image')
+            # TODO: How to load image (expects filepath)
             palette = get_palette(img,num_colors*contrast_scaling)
+            print('Applying contrast scaling')
             reduced_palette = get_distinct_colors(palette,num_colors)
-            print('Creating knitting pattern')
+            print('Getting stitch counts')
             pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
+            print('Creating stitch chart')
             chart = create_stitch_chart(img,pattern_stitch_counts)
+            print('Applying palette to stitch chart')
             converted_img = apply_palette(chart,reduced_palette)
+            print('Base64 encoding image')
             converted_img_base64 = base64.b64encode(converted_img)
             print('Created image')
+            print(converted_img_base64)
             response = respond(None,converted_img_base64)
             print(response)
             return response

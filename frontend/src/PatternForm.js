@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import Pattern from './Pattern'
 
 class PatternForm extends Component {
     constructor(props){
         super(props);
         this.state={
             image:null,
+            processed_image:null,
             num_colors:8,
             gauge:{
                 stitches:20,
@@ -70,7 +72,8 @@ class PatternForm extends Component {
         console.log(request)
         try{
             let response = await axios(request)
-            console.log(response)
+            console.log(response['data'])
+            this.setState({processed_image: response['data']})
         } catch {
             console.log("Error retrieving results")
         } 
@@ -78,7 +81,9 @@ class PatternForm extends Component {
 
     render(){
         return (
-            <form onSubmit={this.handleSubmit}>
+            this.state.processed_image
+            ? <Pattern img={this.state.processed_image}/>
+            : <form onSubmit={this.handleSubmit}>
                 <input
                     name='image'
                     type='file'

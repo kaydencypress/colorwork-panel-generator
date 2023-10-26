@@ -3,6 +3,8 @@ from colorthief import ColorThief
 from PIL import Image, ImagePalette
 import numpy
 import base64
+from io import BytesIO
+import re
 
 print('Loading function')
 
@@ -71,11 +73,13 @@ def apply_palette(img,palette,out_file=None):
     palette_img.putpalette(palette)
     converted_img = img.quantize(palette=palette_img, dither=Image.Dither.NONE)
     converted_img = converted_img.convert('RGB')
-    if out_file:
-        converted_img.save(out_file)
-    return converted_img
+    print('Base64 encoding image')
+    buffered = BytesIO()
+    converted_img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue())
+    return img_str
 
-def create_stitch_chart(in_file,pattern_size,out_file=None,stitch_size=20):
+def create_stitch_chart(in_file,pattern_size,gauge,out_file=None,stitch_size=20):
     """
     Downsample in image to convert it to a stitch chart, with each square in the chart representing a stitch.
 
@@ -83,13 +87,15 @@ def create_stitch_chart(in_file,pattern_size,out_file=None,stitch_size=20):
         in_file (str): The filepath for the image to process.
         pattern_size (int, int): Dimension of pattern in number of stitches (width, height).
         out_file (str): The filepath to save the converted image (default None).
-        stitch_size (int): The length and width of each stitch in the chart, in pixels (default 20).
+        stitch_size (int): Scaling factor for displaying each stitch in chart (default 20).
     """
     with Image.open(in_file) as img:
         img.load()
     img = img.convert('RGB')
-    img.thumbnail(pattern_size)
-    img = img.resize([int(stitch_size * s) for s in img.size],0)
+    img.resize(pattern_size)
+    width_px = round(pattern_size[0]*stitch_size)
+    height_px = round(pattern_size[1]*stitch_size*gauge[0]/gauge[1])
+    img = img.resize((width_px,height_px),0)
     if out_file:
         img.save(out_file)
     return img
@@ -180,10 +186,10 @@ def lambda_handler(event, context):
             print('Load request body')
             body = json.loads(event['body'])
             print('Will decode image:')
-            img = body['image']
+            img = re.sub('^data:image/.+;base64,', '',body['image'])
             print(img)
             print('Decoding image')
-            img = base64.b64decode(img)
+            img = BytesIO(base64.b64decode(img))
             print('Getting pattern settings')
             num_colors = body['num_colors']
             gauge = (body['gauge']['stitches'],body['gauge']['rows'])
@@ -197,14 +203,12 @@ def lambda_handler(event, context):
             print('Getting stitch counts')
             pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
             print('Creating stitch chart')
-            chart = create_stitch_chart(img,pattern_stitch_counts)
+            chart = create_stitch_chart(img,pattern_stitch_counts,gauge)
             print('Applying palette to stitch chart')
             converted_img = apply_palette(chart,reduced_palette)
-            print('Base64 encoding image')
-            converted_img_base64 = base64.b64encode(converted_img)
             print('Created image')
-            print(converted_img_base64)
-            response = respond(None,converted_img_base64)
+            print(converted_img)
+            response = respond(None,converted_img)
             print(response)
             return response
     except Exception as err:

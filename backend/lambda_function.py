@@ -1,7 +1,13 @@
+import json
+from json import JSONEncoder
 from colorthief import ColorThief
 from PIL import Image, ImagePalette
-import os
 import numpy
+import base64
+from io import BytesIO
+import re
+
+print('Loading function')
 
 def get_pattern_stitch_counts(file,width,gauge):
     """
@@ -20,8 +26,8 @@ def get_pattern_stitch_counts(file,width,gauge):
     img_ratio = height_pixels/width_pixels
     height = width * img_ratio
     pattern_size = (width, height)
-    pattern_width_stitches = round(pattern_size[0] * gauge[0] / 4) # 4" gauge
-    pattern_height_stitches = round(pattern_size[1] * gauge[1] / 4) # 4" gauge
+    pattern_width_stitches = int(round(pattern_size[0] * gauge[0] / 4)) # 4" gauge
+    pattern_height_stitches = int(round(pattern_size[1] * gauge[1] / 4)) # 4" gauge
     return pattern_width_stitches, pattern_height_stitches
 
 def get_palette(file,num_colors):
@@ -51,7 +57,7 @@ def get_palette_from_colors(colors):
     flat_palette = list(sum(colors,()))
     return ImagePalette.ImagePalette(mode='RGB',palette=flat_palette)
 
-def apply_palette(img,palette,out_file=None):
+def apply_palette(img,palette):
     """
     Converts an image to a defined color palette.
 
@@ -64,15 +70,17 @@ def apply_palette(img,palette,out_file=None):
         PIL.Image: The resulting image converted to the color palette.
     """
     # create a palette-mapped image for use with PIL.Image.quantize
-    palette_img = Image.new("P",(1,1))
+    palette_img = Image.new('P',(1,1))
     palette_img.putpalette(palette)
     converted_img = img.quantize(palette=palette_img, dither=Image.Dither.NONE)
     converted_img = converted_img.convert('RGB')
-    if out_file:
-        converted_img.save(out_file)
+    """print('Base64 encoding image')
+    buffered = BytesIO()
+    converted_img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue())"""
     return converted_img
 
-def create_stitch_chart(in_file,pattern_size,out_file=None,stitch_size=20):
+def create_stitch_chart(in_file,pattern_size):
     """
     Downsample in image to convert it to a stitch chart, with each square in the chart representing a stitch.
 
@@ -80,15 +88,15 @@ def create_stitch_chart(in_file,pattern_size,out_file=None,stitch_size=20):
         in_file (str): The filepath for the image to process.
         pattern_size (int, int): Dimension of pattern in number of stitches (width, height).
         out_file (str): The filepath to save the converted image (default None).
-        stitch_size (int): The length and width of each stitch in the chart, in pixels (default 20).
+        stitch_size (int): Scaling factor for displaying each stitch in chart (default 20).
     """
     with Image.open(in_file) as img:
         img.load()
     img = img.convert('RGB')
-    img.thumbnail(pattern_size)
-    img = img.resize([int(stitch_size * s) for s in img.size],0)
-    if out_file:
-        img.save(out_file)
+    print("Resizing image: ",pattern_size)
+    img = img.resize(pattern_size)
+    print("Image size is now: ",img.size)
+    #TODO: make this faster for larger images and avoid timeouts
     return img
 
 def get_palette_distances(palette):
@@ -136,6 +144,11 @@ def get_distinct_colors(palette,num_colors):
             included_colors.append(color)
     return get_palette_from_colors(included_colors)
 
+def get_stitches(img):
+    arr = numpy.asarray(img)
+    pixels = json.dumps(arr,cls=NumpyArrayEncoder)
+    return pixels
+
 class ColorDistance:
     def __init__(self,color,ref):
         self.color = color
@@ -145,25 +158,76 @@ class ColorDistance:
     def get_distance(self):
         self.distance = numpy.linalg.norm(numpy.array(self.ref) - numpy.array(self.color))
         return self.distance
-    
-folder = os.path.dirname(__file__)
-in_dir = os.path.join(folder,'tests\\input\\')
-out_dir = os.path.join(folder,'tests\\output\\')
-num_colors = 8
-contrast_scaling = 2.5
-gauge_stitches = 20 # gauge per 4" width
-gauge_rows = 26 # gauge per 4" height
-width_inches = 12.0
 
-files = [f for f in os.listdir(in_dir) if os.path.isdir(in_dir)]
-for file in files:
-    file_name, file_extension = os.path.splitext(file)
-    in_file = os.path.join(in_dir,file)
-    out_file = os.path.join(out_dir,f'{file_name}_processed{file_extension}')
-    debug_file = os.path.join(out_dir,f'{file_name}_debug{file_extension}')
-    gauge = (gauge_stitches,gauge_rows)
-    palette = get_palette(in_file,num_colors*contrast_scaling)
-    reduced_palette = get_distinct_colors(palette,num_colors)
-    pattern_stitch_counts = get_pattern_stitch_counts(in_file,width_inches,gauge)
-    chart = create_stitch_chart(in_file,pattern_stitch_counts,debug_file)
-    converted_img = apply_palette(chart,reduced_palette,out_file)
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
+
+def respond(err, res=None):
+    if err: 
+        statusCode = 400
+        body = err
+    else: 
+        statusCode = 200
+        body = res
+    return {
+        'statusCode': statusCode,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Headers': 'Content-Type,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Allow-Origin',
+            'Access-Control-Allow-Methods': '*',
+            'Access-Control-Allow-Origin': '*'
+        },
+        'body': body,
+        'isBase64Encoded': False
+    }
+
+def lambda_handler(event, context):
+    try:
+        print('Received event: ' + json.dumps(event))
+        if event['httpMethod'] == 'OPTIONS':
+            print('Received pre-flight request')
+            response = respond(None,'Success')
+            print(response)
+            return response
+        else:
+            print('Load request body')
+            body = json.loads(event['body'])
+            print('Will decode image:')
+            img = re.sub('^data:image/.+;base64,', '',body['image'])
+            print(img)
+            print('Decoding image')
+            img = BytesIO(base64.b64decode(img))
+            print('Getting pattern settings')
+            num_colors = body['num_colors']
+            gauge = (float(body['gauge']['stitches']),float(body['gauge']['rows']))
+            contrast_scaling = body['contrast_scaling']
+            width = float(body['width'])
+            print('Getting color palette from image')
+            # TODO: How to load image (expects filepath)
+            palette = get_palette(img,num_colors*contrast_scaling)
+            print('Applying contrast scaling')
+            reduced_palette = get_distinct_colors(palette,num_colors)
+            print('Getting stitch counts')
+            pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
+            print(pattern_stitch_counts)
+            print('Creating stitch chart')
+            chart = create_stitch_chart(img,pattern_stitch_counts)
+            print('Applying palette to stitch chart')
+            converted_img = apply_palette(chart,reduced_palette)
+            print('Created image')
+            print(converted_img)
+            pixels = get_stitches(converted_img)
+            print('Getting array of stitches')
+            print(pixels)
+            response = respond(None,pixels)
+            print(response)
+            return response
+    except Exception as err:
+        message = f"Unexpected {str(type(err))}: {str(err.args[0])}"
+        print(message)
+        response = respond(message)
+        print(response)
+        return response

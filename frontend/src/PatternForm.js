@@ -2,12 +2,13 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import Pattern from './Pattern'
 
+//TODO: add required fields
 class PatternForm extends Component {
     constructor(props){
         super(props);
         this.state={
             image:null,
-            processed_image:null,
+            pattern:null,
             num_colors:8,
             gauge:{
                 stitches:20,
@@ -73,7 +74,7 @@ class PatternForm extends Component {
         try{
             let response = await axios(request)
             console.log(response['data'])
-            this.setState({processed_image: response['data']})
+            this.setState({pattern: response['data']})
         } catch {
             console.log("Error retrieving results")
         } 
@@ -81,8 +82,8 @@ class PatternForm extends Component {
 
     render(){
         return (
-            this.state.processed_image
-            ? <Pattern img={this.state.processed_image}/>
+            this.state.pattern
+            ? <Pattern pattern={this.state.pattern}/>
             : <form onSubmit={this.handleSubmit}>
                 <input
                     name='image'

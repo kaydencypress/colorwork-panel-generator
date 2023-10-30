@@ -195,18 +195,18 @@ def lambda_handler(event, context):
         else:
             print('Load request body')
             body = json.loads(event['body'])
+            print(body)
             print('Will decode image:')
             img = re.sub('^data:image/.+;base64,', '',body['image'])
             print(img)
             print('Decoding image')
             img = BytesIO(base64.b64decode(img))
             print('Getting pattern settings')
-            num_colors = body['num_colors']
-            gauge = (float(body['gauge']['stitches']),float(body['gauge']['rows']))
-            contrast_scaling = body['contrast_scaling']
+            num_colors = body['numColors']
+            gauge = (float(body['gaugeStitches']),float(body['gaugeRows']))
+            contrast_scaling = body['contrast']
             width = float(body['width'])
             print('Getting color palette from image')
-            # TODO: How to load image (expects filepath)
             palette = get_palette(img,num_colors*contrast_scaling)
             print('Applying contrast scaling')
             reduced_palette = get_distinct_colors(palette,num_colors)

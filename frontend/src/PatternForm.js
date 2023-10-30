@@ -1,28 +1,23 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
+import Pattern from './Pattern';
+import './PatternForm.css';
 import axios from 'axios';
-import Pattern from './Pattern'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 
-//TODO: add required fields
-class PatternForm extends Component {
-    constructor(props){
-        super(props);
-        this.state={
-            image:null,
-            pattern:null,
-            num_colors:8,
-            gauge:{
-                stitches:20,
-                rows:26
-            },
-            width:12,
-            contrast_scaling:1.0
-        }
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.convertBase64 = this.convertBase64.bind(this);
-    }
+const PatternForm = () => {
+    const [formData, setFormData] = useState({
+        image: null,
+        fileName: null,
+        pattern: null,
+        numColors: 6,
+        gaugeStitches: 20,
+        gaugeRows: 26,
+        width: 10,
+        contrast: 1.0
+    });
 
-    convertBase64 = (file) => {
+    const convertBase64 = (file) => {
         return new Promise((resolve, reject) => {
           const fileReader = new FileReader();
           fileReader.readAsDataURL(file)
@@ -33,35 +28,29 @@ class PatternForm extends Component {
             reject(error);
           }
         })
-      }
-    
-    handleChange = async (evt) =>{
+    };
+
+    const handleChange = async (evt) =>{
         if (evt.target.type === 'file'){
             const file = evt.target.files[0]
-            const base64 = await this.convertBase64(file)
-            this.setState({[evt.target.name]: base64})
-        }
-        else if (evt.target.name === 'stitches' || evt.target.name === 'rows') {
-            let gauge = this.state.gauge
-            gauge[evt.target.name] = evt.target.value
-            this.setState({[gauge]: gauge})
-        }
-        else if (evt.target.type === 'number') {
-            this.setState({[evt.target.name]: parseFloat(evt.target.value)})
+            {if (file) {
+                const base64 = await convertBase64(file)
+                setFormData({...formData, image: base64, fileName: evt.target.files[0].name});
+            }}
         }
         else {
-            this.setState({[evt.target.name]: evt.target.value})
+            setFormData({...formData, [evt.target.name]: evt.target.value});
         }
-    }
+    };
 
-    handleSubmit = async (evt) => {
-        evt.preventDefault();
+    const handleSubmit = async (evt) => {
+    evt.preventDefault();
         let request = {
             host: "f81ipduqi3.execute-api.us-east-1.amazonaws.com",
             method: "POST",
             url: "https://f81ipduqi3.execute-api.us-east-1.amazonaws.com/default/colorwork_pattern",
-            data: this.state,
-            body: JSON.stringify(this.state),
+            data: formData,
+            body: JSON.stringify(formData),
             path: "/default/colorwork_pattern",
             headers: {
                 'Content-Type': 'application/json',
@@ -72,80 +61,89 @@ class PatternForm extends Component {
         }
         console.log(request)
         try{
-            let response = await axios(request)
-            console.log(response['data'])
-            this.setState({pattern: response['data']})
+            let response = await axios(request);
+            const pattern = response['data'];
+            console.log(pattern);
+            setFormData({...formData, pattern: pattern});
         } catch {
-            console.log("Error retrieving results")
-        } 
-    }
+            console.log("Error retrieving results");
+        }
+    };
 
-    render(){
-        return (
-            this.state.pattern
-            ? <Pattern pattern={this.state.pattern}/>
-            : <form onSubmit={this.handleSubmit}>
-                <input
-                    name='image'
-                    type='file'
-                    onChange={this.handleChange}
-                />
-                <br/>
-                <label htmlFor='num_colors'>Number of Colors</label>
-                <input
-                    name='num_colors'
-                    type='number'
-                    min='2'
-                    max='8'
-                    value={this.state.num_colors}
-                    onChange={this.handleChange}
-                />
-                <br/>
-                <span>Gauge (4"x4"):</span>
-                <label htmlFor='stitches'>Stitches</label>
-                <input
-                    name='stitches'
-                    type='number'
-                    min='4'
-                    max='50'
-                    value={this.state.gauge.stitches}
-                    onChange={this.handleChange}
-                />
-                <label htmlFor='rows'>Rows</label>
-                <input
-                    name='rows'
-                    type='number'
-                    min='4'
-                    max='50'
-                    value={this.state.gauge.rows}
-                    onChange={this.handleChange}
-                />
-                <br/>
-                <label htmlFor='width'>Pattern Width</label>
-                <input
-                    name='width'
-                    type='number'
-                    min='1'
-                    max='50'
-                    value={this.state.width}
-                    onChange={this.handleChange}
-                />
-                <label htmlFor='contrast_scaling'>Contrast Scaling</label>
-                <input
-                    name='contrast_scaling'
-                    type='number'
-                    min='1'
-                    max='5'
-                    step='0.1'
-                    value={this.state.contrast_scaling}
-                    onChange={this.handleChange}
-                />
-                <span>"</span>
-                <br/>
-                <button>Submit</button>
-            </form>
-        );
-    }
+    return (
+        formData.pattern
+        ? <Pattern pattern={formData.pattern}/>
+        : <form onSubmit={handleSubmit}>
+            <label htmlFor='image' className = 'file-selector' type='file'>
+                Upload Image
+            </label>
+            <input
+                id='image'
+                name='image'
+                type='file'
+                onChange={handleChange}
+                accept=".jpg, .jpeg, .png"
+                required
+            />
+            {formData.fileName ? <p>{formData.fileName}</p> : <p>No image selected</p>}
+            <br/>
+            <label htmlFor='numColors'>Number of Colors</label>
+            <input
+                name='numColors'
+                type='number'
+                min='2'
+                max='8'
+                value={formData.numColors}
+                onChange={handleChange}
+                required
+            />
+            <br/>
+            <label htmlFor='gaugeStitches'>4" Gauge: Stitches</label>
+            <input
+                name='gaugeStitches'
+                type='number'
+                min='4'
+                max='50'
+                value={formData.gaugeStitches}
+                onChange={handleChange}
+                required
+            />
+            <label htmlFor='rows'>4" Gauge: Rows</label>
+            <input
+                name='rows'
+                type='number'
+                min='4'
+                max='50'
+                value={formData.gaugeRows}
+                onChange={handleChange}
+                required
+            />
+            <br/>
+            <label htmlFor='width'>Pattern Width (Inches)</label>
+            <input
+                name='width'
+                type='number'
+                min='1'
+                max='50'
+                value={formData.width}
+                onChange={handleChange}
+                required
+            />
+            <br/>
+            <label htmlFor='contrast'>Contrast Scaling</label>
+            <input
+                name='contrast'
+                type='number'
+                min='1.0'
+                max='5.0'
+                step='0.1'
+                value={formData.contrast}
+                onChange={handleChange}
+            />
+            <br/>
+            <input type='submit' name='submit' value='Submit'/>
+        </form>
+    )
 }
 
 export default PatternForm;

@@ -222,7 +222,14 @@ def lambda_handler(event, context):
             pixels = get_stitches(converted_img)
             print('Getting array of stitches')
             print(pixels)
-            response = respond(None,pixels)
+            print('Palette')
+            print(reduced_palette)
+            json_response = {
+                'pattern': json.loads(pixels),
+                'palette': list(reduced_palette.colors.keys())
+            }
+            print(json.dumps(json_response))
+            response = respond(None,json.dumps(json_response))
             print(response)
             return response
     except Exception as err:

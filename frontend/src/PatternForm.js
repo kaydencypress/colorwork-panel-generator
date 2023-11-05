@@ -8,6 +8,7 @@ const PatternForm = () => {
         image: null,
         fileName: null,
         pattern: null,
+        palette: null,
         numColors: 6,
         gaugeStitches: 20,
         gaugeRows: 26,
@@ -60,9 +61,8 @@ const PatternForm = () => {
         console.log(request)
         try{
             let response = await axios(request);
-            const pattern = response['data'];
-            console.log(pattern);
-            setFormData({...formData, pattern: pattern});
+            console.log(response['data']);
+            setFormData({...formData, pattern: response['data']['pattern'], palette: response['data']['palette']});
         } catch {
             console.log("Error retrieving results");
         }
@@ -70,7 +70,7 @@ const PatternForm = () => {
 
     return (
         formData.pattern
-        ? <Pattern pattern={formData.pattern}/>
+        ? <Pattern formData={formData}/>
         : <form onSubmit={handleSubmit}>
             <label htmlFor='image' className = 'file-selector' type='file'>
                 Upload Image

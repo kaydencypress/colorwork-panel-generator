@@ -197,14 +197,15 @@ def lambda_handler(event, context):
             body = json.loads(event['body'])
             print(body)
             print('Will decode image:')
-            img = re.sub('^data:image/.+;base64,', '',body['image'])
+            img = re.sub('^data:image/.+;base64,', '',body['imgBase64'])
             print(img)
             print('Decoding image')
             img = BytesIO(base64.b64decode(img))
             print('Getting pattern settings')
-            num_colors = body['numColors']
+            num_colors = int(body['numColors'])
             gauge = (float(body['gaugeStitches']),float(body['gaugeRows']))
-            contrast_scaling = body['contrast']
+            gauge_ratio = gauge[0]/gauge[1]
+            contrast_scaling = float(body['contrast'])
             width = float(body['width'])
             print('Getting color palette from image')
             palette = get_palette(img,num_colors*contrast_scaling)
@@ -226,7 +227,8 @@ def lambda_handler(event, context):
             print(reduced_palette)
             json_response = {
                 'pattern': json.loads(pixels),
-                'palette': list(reduced_palette.colors.keys())
+                'palette': list(reduced_palette.colors.keys()),
+                'gaugeRatio': gauge_ratio
             }
             print(json.dumps(json_response))
             response = respond(None,json.dumps(json_response))

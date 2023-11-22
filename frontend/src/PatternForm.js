@@ -1,7 +1,33 @@
 import React, {useState} from 'react';
-import Pattern from './Pattern';
+import {Form, redirect} from 'react-router-dom';
+import Pattern from './Pattern'
 import './PatternForm.css';
 import axios from 'axios';
+
+const useFormData = async ({request,params}) => {
+    const formData = await request.formData();
+    let apiRequest = {
+        host: "f81ipduqi3.execute-api.us-east-1.amazonaws.com",
+        method: "POST",
+        url: "https://f81ipduqi3.execute-api.us-east-1.amazonaws.com/default/colorwork_pattern",
+        data: formData,
+        body: JSON.stringify(formData),
+        path: "/default/colorwork_pattern",
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Headers': 'Content-Type,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Allow-Origin',
+            'Access-Control-Allow-Methods': '*',
+            'Access-Control-Allow-Origin': '*'
+        }
+    }
+    console.log(apiRequest)
+    try{
+        return await axios.request(apiRequest);
+    } catch {
+        console.log("Error retrieving results");
+        return redirect('error')
+    }
+};
 
 const PatternForm = () => {
     const [formData, setFormData] = useState({
@@ -42,36 +68,8 @@ const PatternForm = () => {
         }
     };
 
-    const handleSubmit = async (evt) => {
-    evt.preventDefault();
-        let request = {
-            host: "f81ipduqi3.execute-api.us-east-1.amazonaws.com",
-            method: "POST",
-            url: "https://f81ipduqi3.execute-api.us-east-1.amazonaws.com/default/colorwork_pattern",
-            data: formData,
-            body: JSON.stringify(formData),
-            path: "/default/colorwork_pattern",
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Headers': 'Content-Type,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Access-Control-Allow-Origin',
-                'Access-Control-Allow-Methods': '*',
-                'Access-Control-Allow-Origin': '*'
-            }
-        }
-        console.log(request)
-        try{
-            let response = await axios(request);
-            console.log(response['data']);
-            setFormData({...formData, pattern: response['data']['pattern'], palette: response['data']['palette']});
-        } catch {
-            console.log("Error retrieving results");
-        }
-    };
-
     return (
-        formData.pattern
-        ? <Pattern formData={formData}/>
-        : <form onSubmit={handleSubmit}>
+        <Form method='post' action='pattern/new'>
             <label htmlFor='image' className = 'file-selector' type='file'>
                 Upload Image
             </label>
@@ -84,6 +82,15 @@ const PatternForm = () => {
                 required
             />
             {formData.fileName ? <p>{formData.fileName}</p> : <p>No image selected</p>}
+            <input
+                name='imgBase64'
+                type='hidden'
+                value={
+                    formData
+                    ? formData.image
+                    : undefined
+                }
+            />
             <br/>
             <label htmlFor='numColors'>Number of Colors</label>
             <input
@@ -108,7 +115,7 @@ const PatternForm = () => {
             />
             <label htmlFor='rows'>4" Gauge: Rows</label>
             <input
-                name='rows'
+                name='gaugeRows'
                 type='number'
                 min='4'
                 max='50'
@@ -140,8 +147,9 @@ const PatternForm = () => {
             />
             <br/>
             <input type='submit' name='submit' value='Submit'/>
-        </form>
-    )
+        </Form>
+    );
 }
 
 export default PatternForm;
+export { useFormData };

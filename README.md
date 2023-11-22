@@ -7,5 +7,3 @@
 4. User can change colors of individual stitches
 5. *(TO-DO)* User can edit the color palette
 6. *(TO-DO)* Download pattern to PDF
-
-In-progress: Front-end hosted in AWS S3 & CloudFront

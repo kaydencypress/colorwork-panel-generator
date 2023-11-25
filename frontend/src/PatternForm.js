@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {Form, redirect} from 'react-router-dom';
-import Pattern from './Pattern'
 import './PatternForm.css';
 import axios from 'axios';
 
@@ -58,10 +57,10 @@ const PatternForm = () => {
     const handleChange = async (evt) =>{
         if (evt.target.type === 'file'){
             const file = evt.target.files[0]
-            {if (file) {
+            if (file) {
                 const base64 = await convertBase64(file)
                 setFormData({...formData, image: base64, fileName: evt.target.files[0].name});
-            }}
+            }
         }
         else {
             setFormData({...formData, [evt.target.name]: evt.target.value});
@@ -97,7 +96,7 @@ const PatternForm = () => {
                 name='numColors'
                 type='number'
                 min='2'
-                max='8'
+                max='12'
                 value={formData.numColors}
                 onChange={handleChange}
                 required
@@ -133,17 +132,6 @@ const PatternForm = () => {
                 value={formData.width}
                 onChange={handleChange}
                 required
-            />
-            <br/>
-            <label htmlFor='contrast'>Contrast Scaling</label>
-            <input
-                name='contrast'
-                type='number'
-                min='1.0'
-                max='5.0'
-                step='0.1'
-                value={formData.contrast}
-                onChange={handleChange}
             />
             <br/>
             <input type='submit' name='submit' value='Submit'/>

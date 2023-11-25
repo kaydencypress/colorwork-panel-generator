@@ -1,12 +1,11 @@
-import './App.css';
 import {
   createBrowserRouter,
   RouterProvider,
-  redirect
 } from "react-router-dom";
 import PatternForm, {useFormData} from './PatternForm';
-import Pattern from './Pattern';
+import PatternPreview from './PatternPreview';
 import Error from './Error';
+import './App.css'
 
 function App() {
     const router = createBrowserRouter([
@@ -18,7 +17,7 @@ function App() {
         path: 'pattern/new',
         method: 'post',
         action: useFormData,
-        element: <Pattern/>
+        element: <PatternPreview/>
       },
       {
         path:'error',

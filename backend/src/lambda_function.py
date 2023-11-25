@@ -93,10 +93,7 @@ def create_stitch_chart(in_file,pattern_size):
     with Image.open(in_file) as img:
         img.load()
     img = img.convert('RGB')
-    print("Resizing image: ",pattern_size)
     img = img.resize(pattern_size)
-    print("Image size is now: ",img.size)
-    #TODO: make this faster for larger images and avoid timeouts
     return img
 
 def get_palette_distances(palette):
@@ -119,35 +116,13 @@ def get_palette_distances(palette):
     distances.sort(key=lambda x: x.distance)
     return distances
 
-def get_distinct_colors(palette,num_colors):
-    """
-    Filter down an image's color palette to the most visually distinct colors.
-
-    Args:
-        palette (PIL.ImagePalette.ImagePalette): The larger color palette to be filtered.
-        num_colors (int): The number of colors to select.
-
-    Returns:
-        PIL.ImagePalette.ImagePalette: The filtered color palette.
-    """
-    distances = get_palette_distances(palette)
-    excluded_colors = []
-    included_colors = []    
-    for distance in distances:
-        while (len(palette.colors.keys()) - len(excluded_colors) > num_colors):
-            if distance.distance != 0 and distance.color not in excluded_colors and distance.ref not in excluded_colors:
-                excluded_colors.append(distance.color)
-            else:
-                break
-    for color in palette.colors.keys():
-        if color not in excluded_colors:
-            included_colors.append(color)
-    return get_palette_from_colors(included_colors)
-
 def get_stitches(img):
     arr = numpy.asarray(img)
     pixels = json.dumps(arr,cls=NumpyArrayEncoder)
     return pixels
+
+def save_img(img,filepath):
+    return img.save(filepath)
 
 class ColorDistance:
     def __init__(self,color,ref):
@@ -187,7 +162,7 @@ def respond(err, res=None):
 def lambda_handler(event, context):
     try:
         print('Received event: ' + json.dumps(event))
-        if event['httpMethod'] == 'OPTIONS':
+        if event['httpMethod'] and event['httpMethod'] == 'OPTIONS':
             print('Received pre-flight request')
             response = respond(None,'Success')
             print(response)
@@ -205,30 +180,31 @@ def lambda_handler(event, context):
             num_colors = int(body['numColors'])
             gauge = (float(body['gaugeStitches']),float(body['gaugeRows']))
             gauge_ratio = gauge[0]/gauge[1]
-            contrast_scaling = float(body['contrast'])
             width = float(body['width'])
-            print('Getting color palette from image')
-            palette = get_palette(img,num_colors*contrast_scaling)
-            print('Applying contrast scaling')
-            reduced_palette = get_distinct_colors(palette,num_colors)
             print('Getting stitch counts')
             pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
             print(pattern_stitch_counts)
             print('Creating stitch chart')
             chart = create_stitch_chart(img,pattern_stitch_counts)
+            print('Saving stitch chart image')
+            tmpfile = '/tmp/tmp.png'
+            img=save_img(chart,tmpfile)
+            print('Getting color palette from image')
+            palette = get_palette(tmpfile,num_colors)
             print('Applying palette to stitch chart')
-            converted_img = apply_palette(chart,reduced_palette)
+            converted_img = apply_palette(chart,palette)
             print('Created image')
             print(converted_img)
             pixels = get_stitches(converted_img)
             print('Getting array of stitches')
             print(pixels)
             print('Palette')
-            print(reduced_palette)
+            print(palette)
             json_response = {
                 'pattern': json.loads(pixels),
-                'palette': list(reduced_palette.colors.keys()),
-                'gaugeRatio': gauge_ratio
+                'palette': list(palette.colors.keys()),
+                'gaugeStitches': gauge[0],
+                'gaugeRows': gauge[1]
             }
             print(json.dumps(json_response))
             response = respond(None,json.dumps(json_response))

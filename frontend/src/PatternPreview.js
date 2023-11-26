@@ -4,12 +4,15 @@ import Palette from './Palette';
 import './PatternPreview.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
+import {Form } from 'react-router-dom';
 
 function PatternPreview() {
     return (
         <div>
             <div className='Controls'>
-                <button> <FontAwesomeIcon icon={icon({name: 'arrow-left'})} /> </button>
+                <Form action='/'>
+                    <button> <FontAwesomeIcon icon={icon({name: 'arrow-left'})}/> </button>
+                </Form>
                 <Palette/>
                 <button><FontAwesomeIcon icon={icon({name: 'download'})} /></button>
             </div>

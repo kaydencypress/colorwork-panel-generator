@@ -68,7 +68,7 @@ const PatternForm = () => {
     };
 
     return (
-        <Form method='post' action='pattern/new'>
+        <Form method='post' action='pattern/new' className='pattern-form'>
             <label htmlFor='image' className = 'file-selector' type='file'>
                 Upload Image
             </label>

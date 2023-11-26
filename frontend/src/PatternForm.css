@@ -30,7 +30,7 @@ body {
     background:white;
 }
 
-form {
+.pattern-form {
 	margin:5% auto 0 auto;
 	padding:30px;
 	width:400px;

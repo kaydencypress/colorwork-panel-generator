@@ -1,0 +1,26 @@
+.palette {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    background:#1abc9c;
+    border-radius: 10px;
+    height: 35px
+}
+
+button {
+    display: flex;
+    align-items: center;
+    font-size:14px;
+	padding:10px 15px;
+	width:auto;
+	background:#1abc9c;
+	border:none;
+    border-radius:10px;
+	color:white;
+	cursor:pointer;
+	-webkit-transition:0.2s ease all;
+	   -moz-transition:0.2s ease all;
+	    -ms-transition:0.2s ease all;
+	     -o-transition:0.2s ease all;
+	        transition:0.2s ease all;
+}

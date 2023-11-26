@@ -1,5 +1,5 @@
 import React from 'react';
-import SimpleStitch from './SimpleStitch'
+import Stitch from './Stitch'
 import './Pattern.css'
 import { useActionData } from 'react-router-dom';
 
@@ -8,19 +8,20 @@ function Pattern() {
     const pattern = data.pattern;
     const gaugeStitches = data.gaugeStitches;
     const gaugeRows = data.gaugeRows;
-    const aspectRatio = (gaugeRows * pattern[0].length) / (gaugeStitches * pattern.length)
+    const imgAspectRatio = (gaugeRows * pattern[0].length) / (gaugeStitches * pattern.length)
+    const stitchAspectRatio = gaugeRows / gaugeStitches
     let style = { 
-        aspectRatio: aspectRatio,
+        aspectRatio: imgAspectRatio,
         margin: 'auto'
     }
-    aspectRatio >= 1
+    imgAspectRatio >= 1
         ? style.height = '90vh'
         : style.width = '90vh'
     return (
         <div style={style}>
             {pattern.map(row => 
                 <div className = 'patternRow'>
-                    {row.map(s => <SimpleStitch rgb={s} gaugeStitches={gaugeStitches} gaugeRows={gaugeRows}/>)}
+                    {row.map(s => <Stitch rgb={s} aspectRatio={stitchAspectRatio}/>)}
                 </div>)}
         </div>
     );

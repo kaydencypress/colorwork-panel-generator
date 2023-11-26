@@ -1,4 +1,12 @@
 .Pattern {
     display: flex;
     margin: 20px 10px;
+    border: 2px solid #969696;
+    background-color: #F5F5F5;
+}
+
+.Controls {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 10px 0px 10px;
 }

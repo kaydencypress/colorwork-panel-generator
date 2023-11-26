@@ -1,11 +1,10 @@
 import React from 'react';
 
-const SimpleStitch = (props) => {
+const Stitch = (props) => {
     const rgb = `rgb(${props.rgb[0]},${props.rgb[1]},${props.rgb[2]})`
-    const aspect_ratio = props.gaugeRows / props.gaugeStitches
     const stitchStyle = {
         background: rgb,
-        aspectRatio: aspect_ratio,
+        aspectRatio: props.aspectRatio,
         flexGrow: 1,
         minWidth: '1px',
         minHeight: '1px'
@@ -16,4 +15,4 @@ const SimpleStitch = (props) => {
     )
 }
 
-export default SimpleStitch;
+export default Stitch;

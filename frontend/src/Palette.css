@@ -24,3 +24,22 @@ button {
 	     -o-transition:0.2s ease all;
 	        transition:0.2s ease all;
 }
+
+.palette-list {
+	margin: 0;
+	padding: 0
+}
+
+li {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	display: inline-block;
+	height: 100%
+}
+
+option {
+	background-color: 'red';
+	height: 35px;
+	width: 35px;
+}

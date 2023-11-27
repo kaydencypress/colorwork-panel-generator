@@ -2,6 +2,7 @@ import React from 'react';
 import Stitch from './Stitch'
 import './Pattern.css'
 import { useActionData } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 function Pattern() {
     const data = useActionData().data;
@@ -21,7 +22,7 @@ function Pattern() {
         <div style={style}>
             {pattern.map(row => 
                 <div className = 'patternRow'>
-                    {row.map(s => <Stitch rgb={s} aspectRatio={stitchAspectRatio}/>)}
+                    {row.map(s => <Stitch rgb={s} aspectRatio={stitchAspectRatio} key={uuidv4()}/>)}
                 </div>)}
         </div>
     );

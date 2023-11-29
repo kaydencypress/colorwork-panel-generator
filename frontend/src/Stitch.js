@@ -1,16 +1,23 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 const Stitch = (props) => {
-    const rgb = `rgb(${props.rgb[0]},${props.rgb[1]},${props.rgb[2]})`
+    const [color,setColor] = useState(props.initColor)
+    const isPainting = props.isPainting;
+    const selectRef = props.selectRef;
     const stitchStyle = {
-        background: rgb,
+        background: color,
         aspectRatio: props.aspectRatio,
         flexGrow: 1,
         minWidth: '1px',
         minHeight: '1px'
     }
+    const handleClick = (evt) => {
+        if (isPainting) {
+            setColor((selectRef.current.getValue())[0].value);
+        }
+    }
     return (
-        <div style={stitchStyle}>
+        <div style={stitchStyle} onClick={handleClick}>
         </div>
     )
 }

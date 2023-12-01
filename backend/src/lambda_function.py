@@ -1,6 +1,5 @@
 import json
 from json import JSONEncoder
-from colorthief import ColorThief
 from PIL import Image, ImagePalette
 import numpy
 import base64
@@ -40,8 +39,10 @@ def get_palette(file,num_colors):
     Returns:
         PIL.ImagePalette.ImagePalette: The color palette of the image.
     """
-    color_thief = ColorThief(file)
-    colors = color_thief.get_palette(color_count=num_colors,quality=10)
+    img = Image.open(file)
+    img = img.quantize(num_colors)
+    colors = img.getpalette() # Returned as 265-length list [r, g, b, r, g, b, ... 0, 0, 0, ...]
+    colors = colors[0:num_colors*3] 
     return get_palette_from_colors(colors)
 
 def get_palette_from_colors(colors):
@@ -49,13 +50,12 @@ def get_palette_from_colors(colors):
     Given a list of colors, create a color palette.
 
     Args:
-        colors (list of (int, int, int)): A list of RGB colors (R, G, B)
+        colors (list of int): A flat list of RGB colors [r, g, b, r, g, b, ...]
 
     Return:
         PIL.ImagePalette.ImagePalette: The resulting color palette.
     """
-    flat_palette = list(sum(colors,()))
-    return ImagePalette.ImagePalette(mode='RGB',palette=flat_palette)
+    return ImagePalette.ImagePalette(mode='RGB',palette=colors)
 
 def apply_palette(img,palette):
     """
@@ -199,7 +199,7 @@ def lambda_handler(event, context):
             print('Getting array of stitches')
             print(pixels)
             print('Palette')
-            print(palette)
+            print(palette.colors)
             json_response = {
                 'pattern': json.loads(pixels),
                 'palette': list(palette.colors.keys()),

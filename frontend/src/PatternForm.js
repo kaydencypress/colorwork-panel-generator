@@ -34,10 +34,10 @@ const PatternForm = () => {
         fileName: null,
         pattern: null,
         palette: null,
-        numColors: 6,
+        numColors: 10,
         gaugeStitches: 20,
         gaugeRows: 26,
-        width: 10,
+        width: 12,
         contrast: 1.0
     });
 
@@ -96,7 +96,7 @@ const PatternForm = () => {
                 name='numColors'
                 type='number'
                 min='2'
-                max='12'
+                max='20'
                 value={formData.numColors}
                 onChange={handleChange}
                 required

@@ -21,17 +21,16 @@ function PatternPreview() {
     const defaultColor = rgbPalette[0].value;
     const selectRef = useRef(defaultColor);
     const [isPainting,setIsPainting] = useState(false);
-
     return (
         <div>
-            <div className='Controls'>
+            <div className='controls'>
                 <Form action='/'>
                     <button> <FontAwesomeIcon icon={icon({name: 'arrow-left'})}/> </button>
                 </Form>
                 <Palette palette={rgbPalette} isPainting={isPainting} setIsPainting={setIsPainting} selectRef={selectRef}/>
                 <button><FontAwesomeIcon icon={icon({name: 'download'})} /></button>
             </div>
-            <div className = 'Pattern'>
+            <div className = 'pattern'>
                 <Pattern isPainting={isPainting} selectRef={selectRef}/>
             </div>
         </div>

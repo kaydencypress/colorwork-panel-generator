@@ -10,24 +10,32 @@ function Palette(props) {
     const setIsPainting = props.setIsPainting;
     const defaultColor = palette[0].value
     const selectRef = props.selectRef;
-
     const colourStyles: StylesConfig<ColourOption> = {
-        option: (styles, {data}) => {
+        option: (styles, state) => {
             return {
                 ...styles,
-                backgroundColor: data.value,
+                backgroundColor: state.value,
                 aspectRatio: 1,
-                height: '35px'
+                height: '35px',
+                border: (isPainting & state.value === (
+                    (selectRef.current.hasOwnProperty('getValue') && (selectRef.current.getValue()).length > 0)
+                        ? (selectRef.current.getValue())[0].value 
+                        : defaultColor
+                    )) | (state.isSelected && isPainting)
+                    ? '2px solid black' 
+                    : state.isFocused 
+                        ? '1px solid grey' 
+                        : 'none'
             }
         },
-        menuList: (styles, {data}) => {
+        menuList: (styles, state) => {
             return {
                 ...styles,
                 display: 'flex',
                 padding: 0
             }
         },
-        menu: (styles, {data}) => {
+        menu: (styles, state) => {
             return {
                 ...styles,
                 display: 'flex',
@@ -36,7 +44,7 @@ function Palette(props) {
                 position: 'auto'
             }
         },
-        control: (styles, {data}) => {
+        control: (styles, state) => {
             return {
                 ...styles,
                 display: 'none',
@@ -45,11 +53,12 @@ function Palette(props) {
             }
         }
     };
+
     return(
         <div className='palette'>
-            <button className='palette-btn'> <FontAwesomeIcon icon={icon({name: 'pencil'})} /> </button>
+            <button className='edit-btn'> <FontAwesomeIcon icon={icon({name: 'pencil'})} /> </button>
                 <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor}></Select>
-            <button className='palette-btn' onClick={() => setIsPainting(!isPainting)}> <FontAwesomeIcon icon={icon({name: 'fill-drip'})} /> </button>
+            <button className={isPainting ? 'paint-btn selected' : 'paint-btn'} onClick={() => setIsPainting(!isPainting)}> <FontAwesomeIcon icon={icon({name: 'fill-drip'})} /> </button>
         </div>
     )
 }

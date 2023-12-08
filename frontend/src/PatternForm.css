@@ -31,11 +31,10 @@ body {
 }
 
 .pattern-form {
-	margin:5% auto 0 auto;
-	padding:30px;
+	margin: 0 auto;
+	padding: 7.5vh 20px;
 	width:400px;
-	height:auto;
-	overflow:hidden;
+	height:85vh;
 	background:white;
 	border-radius:10px;
 }

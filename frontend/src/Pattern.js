@@ -17,17 +17,12 @@ function Pattern(props) {
     const stitchAspectRatio = gaugeRows / gaugeStitches
     const isPainting = props.isPainting;
     const selectRef = props.selectRef;
-    let style = { 
-        aspectRatio: imgAspectRatio,
-        margin: 'auto'
-    }
-    imgAspectRatio >= 1
-        ? style.height = '90vh'
-        : style.width = '90vh'
+    let style = { aspectRatio: imgAspectRatio }
+
     return (
-        <div style={style}>
+        <div className='pattern' style={style}>
             {pattern.map(row => 
-                <div className = 'patternRow'>
+                <div className = 'pattern-row'>
                     {row.map(s => <Stitch initColor={rgb(s)} aspectRatio={stitchAspectRatio} key={uuidv4()} isPainting={isPainting} selectRef={selectRef}/>)}
                 </div>)}
         </div>

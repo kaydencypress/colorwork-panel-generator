@@ -1,12 +1,22 @@
-.pattern {
-    display: flex;
-    margin: 20px 10px;
-    border: 2px solid #969696;
+body {
     background-color: #F5F5F5;
 }
-
+.control-container {
+    border-bottom: 2px solid #969696;
+    background-color: white;
+}
 .controls {
     display: flex;
     justify-content: space-between;
-    margin: 20px 10px 0px 10px;
+    padding: 20px;
+}
+
+@media print {
+    body {
+        background-color: white;
+    }
+    
+    .control-container {
+        display: none;
+    }
 }

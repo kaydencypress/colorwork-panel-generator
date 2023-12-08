@@ -7,9 +7,9 @@ const Stitch = (props) => {
     const stitchStyle = {
         background: color,
         aspectRatio: props.aspectRatio,
-        flexGrow: 1,
-        minWidth: '1px',
-        minHeight: '1px'
+        display: 'flex',
+        flex: '1 1 0',
+        border: '1px solid #969696'
     }
     const handleClick = (evt) => {
         if (isPainting) {

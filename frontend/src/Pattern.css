@@ -1,4 +1,16 @@
-.patternRow {
+.pattern {
+    height: 80vh;
+    margin: 0 auto;
+}
+
+.pattern-row {
     display: flex;
+    flex-direction: row;
     flex-wrap: nowrap;
+}
+
+@media print {
+    .pattern {
+        height: 95vh;
+    }
 }

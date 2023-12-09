@@ -1,0 +1,15 @@
+.control-container {
+    border-bottom: 2px solid #969696;
+    background-color: white;
+}
+.controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+@media print {
+    .control-container {
+        display: none;
+    }
+}

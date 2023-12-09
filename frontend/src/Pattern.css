@@ -9,6 +9,18 @@
     flex-wrap: nowrap;
 }
 
+.landscape {
+    @page {
+        size: landscape;
+    }
+}
+
+.portrait {
+    @page {
+        size: portrait;
+    }
+}
+
 @media print {
     .pattern {
         height: 95vh;

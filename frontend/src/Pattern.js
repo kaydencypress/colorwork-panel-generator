@@ -1,7 +1,6 @@
 import React from 'react';
 import Stitch from './Stitch'
 import './Pattern.css'
-import { useActionData } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 function rgb(arr) {
@@ -9,18 +8,15 @@ function rgb(arr) {
 }
 
 function Pattern(props) {
-    const data = useActionData().data;
-    const pattern = data.pattern;
-    const gaugeStitches = data.gaugeStitches;
-    const gaugeRows = data.gaugeRows;
-    const imgAspectRatio = (gaugeRows * pattern[0].length) / (gaugeStitches * pattern.length)
-    const stitchAspectRatio = gaugeRows / gaugeStitches
+    const pattern = props.pattern;
+    const imgAspectRatio = props.imgAspectRatio;
+    const stitchAspectRatio = props.stitchAspectRatio;
     const isPainting = props.isPainting;
     const selectRef = props.selectRef;
-    let style = { aspectRatio: imgAspectRatio }
+    const orientation = props.orientation;
 
     return (
-        <div className='pattern' style={style}>
+        <div className={`pattern ${orientation}`} style={{ aspectRatio: imgAspectRatio }}>
             {pattern.map(row => 
                 <div className = 'pattern-row'>
                     {row.map(s => <Stitch initColor={rgb(s)} aspectRatio={stitchAspectRatio} key={uuidv4()} isPainting={isPainting} selectRef={selectRef}/>)}

@@ -1,10 +1,7 @@
 import React, {useState, useRef} from 'react';
 import Pattern from './Pattern';
-import Palette from './Palette';
+import Controls from './Controls';
 import './PatternPreview.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
-import {Form } from 'react-router-dom';
 import { useActionData } from "react-router-dom";
 
 function rgb(arr) {
@@ -13,7 +10,13 @@ function rgb(arr) {
 
 function PatternPreview() {
     const data = useActionData().data;
+    const pattern = data.pattern;
     const palette = data.palette;
+    const gaugeStitches = data.gaugeStitches;
+    const gaugeRows = data.gaugeRows;
+    const stitchAspectRatio = gaugeRows / gaugeStitches;
+    const imgAspectRatio = (gaugeRows * pattern[0].length) / (gaugeStitches * pattern.length);
+    const orientation = imgAspectRatio > 1 ? 'landscape' : 'portrait';
     let rgbPalette = [];
     palette.forEach(element => {
         rgbPalette.push({value: rgb(element), label: ""});
@@ -23,16 +26,8 @@ function PatternPreview() {
     const [isPainting,setIsPainting] = useState(false);
     return (
         <div >
-            <div className='control-container'>
-                <div className='controls'>
-                    <Form action='/'>
-                        <button> <FontAwesomeIcon icon={icon({name: 'arrow-left'})}/> </button>
-                    </Form>
-                    <Palette palette={rgbPalette} isPainting={isPainting} setIsPainting={setIsPainting} selectRef={selectRef}/>
-                    <button><FontAwesomeIcon icon={icon({name: 'download'})} /></button>
-                </div>
-            </div>
-            <Pattern isPainting={isPainting} selectRef={selectRef}/>
+            <Controls palette={rgbPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} selectRef={selectRef} />
+            <Pattern pattern={pattern} imgAspectRatio={imgAspectRatio} orientation={orientation} stitchAspectRatio={stitchAspectRatio} isPainting={isPainting} selectRef={selectRef} />
         </div>
     )
 }

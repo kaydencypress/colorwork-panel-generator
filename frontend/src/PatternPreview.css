@@ -1,9 +1,16 @@
-body {
+.view-window {
     background-color: #F5F5F5;
+    height: 100%;
+}
+
+.preview-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 @media print {
-    body {
+    .view-window {
         background-color: white;
     }
 }

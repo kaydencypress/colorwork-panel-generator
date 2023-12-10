@@ -3,24 +3,30 @@ import Stitch from './Stitch'
 import './Pattern.css'
 import { v4 as uuidv4 } from 'uuid';
 
-function rgb(arr) {
-    return `rgb(${arr[0]},${arr[1]},${arr[2]})`
-}
-
 function Pattern(props) {
     const pattern = props.pattern;
+    const setPattern = props.setPattern;
     const imgAspectRatio = props.imgAspectRatio;
     const stitchAspectRatio = props.stitchAspectRatio;
     const isPainting = props.isPainting;
     const selectRef = props.selectRef;
     const orientation = props.orientation;
+    const zoom = props.zoom;
+
+    const style = { 
+        aspectRatio: imgAspectRatio,
+        height: zoom ? `${0.8*zoom}vh` : '80vh'
+    }
 
     return (
-        <div className={`pattern ${orientation}`} style={{ aspectRatio: imgAspectRatio }}>
-            {pattern.map(row => 
-                <div className = 'pattern-row'>
-                    {row.map(s => <Stitch initColor={rgb(s)} aspectRatio={stitchAspectRatio} key={uuidv4()} isPainting={isPainting} selectRef={selectRef}/>)}
-                </div>)}
+        <div className='view-window'>
+            <div className={`pattern ${orientation}`} style={style}>
+                {pattern.map((row,r) => 
+                    <div className = 'pattern-row'>
+                        {row.map((stitch,c) => <Stitch initColor={stitch} aspectRatio={stitchAspectRatio} key={uuidv4()} pattern={pattern} setPattern={setPattern} row={r} column={c} isPainting={isPainting} selectRef={selectRef}/>)}
+                    </div>)
+                }
+            </div>
         </div>
     );
 }

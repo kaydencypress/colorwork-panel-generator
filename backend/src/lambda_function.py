@@ -1,7 +1,7 @@
 import json
 from json import JSONEncoder
 from PIL import Image, ImagePalette
-import numpy
+import numpy as np
 import base64
 from io import BytesIO
 import re
@@ -117,12 +117,16 @@ def get_palette_distances(palette):
     return distances
 
 def get_stitches(img):
-    arr = numpy.asarray(img)
-    pixels = json.dumps(arr,cls=NumpyArrayEncoder)
+    arr = np.asarray(img)
+    rgb_arr = np.apply_along_axis(arrToRgb, 2, arr)
+    pixels = json.dumps(rgb_arr,cls=NumpyArrayEncoder)
     return pixels
 
 def save_img(img,filepath):
     return img.save(filepath)
+
+def arrToRgb(arr):
+    return f"rgb({arr[0]},{arr[1]},{arr[2]})"
 
 class ColorDistance:
     def __init__(self,color,ref):
@@ -131,12 +135,12 @@ class ColorDistance:
         self.distance = 0
     
     def get_distance(self):
-        self.distance = numpy.linalg.norm(numpy.array(self.ref) - numpy.array(self.color))
+        self.distance = np.linalg.norm(np.array(self.ref) - np.array(self.color))
         return self.distance
 
 class NumpyArrayEncoder(JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, numpy.ndarray):
+        if isinstance(obj, np.ndarray):
             return obj.tolist()
         return JSONEncoder.default(self, obj)
 
@@ -179,7 +183,6 @@ def lambda_handler(event, context):
             print('Getting pattern settings')
             num_colors = int(body['numColors'])
             gauge = (float(body['gaugeStitches']),float(body['gaugeRows']))
-            gauge_ratio = gauge[0]/gauge[1]
             width = float(body['width'])
             print('Getting stitch counts')
             pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
@@ -195,14 +198,14 @@ def lambda_handler(event, context):
             converted_img = apply_palette(chart,palette)
             print('Created image')
             print(converted_img)
-            pixels = get_stitches(converted_img)
             print('Getting array of stitches')
+            pixels = get_stitches(converted_img)
             print(pixels)
             print('Palette')
             print(palette.colors)
             json_response = {
                 'pattern': json.loads(pixels),
-                'palette': list(palette.colors.keys()),
+                'palette': list(map( arrToRgb, list(palette.colors.keys()) )),
                 'gaugeStitches': gauge[0],
                 'gaugeRows': gauge[1]
             }

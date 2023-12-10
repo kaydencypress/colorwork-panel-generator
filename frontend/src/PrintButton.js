@@ -9,7 +9,8 @@ function setPageSize(cssPageSize) {
     document.head.appendChild(style);
 }
 
-function PrintButton({ orientation = 'portrait' }) {
+function PrintButton(props) {
+    const orientation = props.orientation;
     // Set orientation of page being printed
     useEffect(() => {
         setPageSize(orientation);

@@ -8,6 +8,14 @@
     padding: 20px;
 }
 
+input {
+    border:1px solid #bbb;
+	border-radius:20px;
+	font-size: 18px;
+    width: 70px;
+    margin: 0 5px;
+}
+
 @media print {
     .control-container {
         display: none;

@@ -1,5 +1,8 @@
+.view-window {
+    overflow: scroll;
+}
+
 .pattern {
-    height: 80vh;
     margin: 0 auto;
 }
 
@@ -23,6 +26,10 @@
 
 @media print {
     .pattern {
-        height: 95vh;
+        max-height: 95vh;
+        min-height: 95vh;
+    }
+    .view-window {
+        overflow: visible;
     }
 }

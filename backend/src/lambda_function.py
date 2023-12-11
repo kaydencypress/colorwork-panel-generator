@@ -29,17 +29,31 @@ def get_pattern_stitch_counts(file,width,gauge):
     pattern_height_stitches = int(round(pattern_size[1] * gauge[1] / 4)) # 4" gauge
     return pattern_width_stitches, pattern_height_stitches
 
-def get_palette(file,num_colors):
+def get_palette_from_file(num_colors,filepath='/tmp/tmp.png'):
     """
     Get a color palette from an image.
 
     Args:
-        file (str): The filepath for the image.
+        num_colors (int): The number of colors to use for the color palette.
+        filepath (str): The filepath of an image (Default: '/tmp/tmp.png').
 
     Returns:
         PIL.ImagePalette.ImagePalette: The color palette of the image.
     """
-    img = Image.open(file)
+    img = Image.open(filepath)
+    return get_palette_from_img(num_colors,img)
+
+def get_palette_from_img(num_colors,img):
+    """
+    Get a color palette from an image.
+
+    Args:
+        num_colors (int): The number of colors to use for the color palette.
+        img (PIL.Image): An image.
+
+    Returns:
+        PIL.ImagePalette.ImagePalette: The color palette of the image.
+    """
     img = img.quantize(num_colors)
     colors = img.getpalette() # Returned as 265-length list [r, g, b, r, g, b, ... 0, 0, 0, ...]
     colors = colors[0:num_colors*3] 
@@ -62,9 +76,8 @@ def apply_palette(img,palette):
     Converts an image to a defined color palette.
 
     Args:
-        in_file (str): The filepath for the image to process.
+        img (PIL.Image): The image to process.
         palette (PIL.ImagePalette.ImagePalette): An image with the desired color palette.
-        out_file (str): The filepath to save the converted image (default None).
 
     Returns:
         PIL.Image: The resulting image converted to the color palette.
@@ -74,26 +87,25 @@ def apply_palette(img,palette):
     palette_img.putpalette(palette)
     converted_img = img.quantize(palette=palette_img, dither=Image.Dither.NONE)
     converted_img = converted_img.convert('RGB')
-    """print('Base64 encoding image')
-    buffered = BytesIO()
-    converted_img.save(buffered, format="JPEG")
-    img_str = base64.b64encode(buffered.getvalue())"""
     return converted_img
 
-def create_stitch_chart(in_file,pattern_size):
+def create_stitch_chart(in_file,pattern_size,out_file='/tmp/tmp.png'):
     """
-    Downsample in image to convert it to a stitch chart, with each square in the chart representing a stitch.
+    Downsample an image to convert it to a stitch chart, where each pixel represents one stitch.
 
     Args:
         in_file (str): The filepath for the image to process.
         pattern_size (int, int): Dimension of pattern in number of stitches (width, height).
-        out_file (str): The filepath to save the converted image (default None).
-        stitch_size (int): Scaling factor for displaying each stitch in chart (default 20).
+        out_file (str): The filepath for the resulting stitch chart (Default: '/tmp/tmp.png').
+
+    Returns:
+        PIL.Image: The stitch chart as image, where each pixel represents one stitch.
     """
     with Image.open(in_file) as img:
         img.load()
     img = img.convert('RGB')
     img = img.resize(pattern_size)
+    img.save(out_file)
     return img
 
 def get_palette_distances(palette):
@@ -112,21 +124,73 @@ def get_palette_distances(palette):
             dist = ColorDistance(color,ref_color)
             dist.get_distance()
             distances.append(dist)
-            # f.write(f"{color[0]}_{color[1]}_{color[2]},{ref_color[0]}_{ref_color[1]}_{ref_color[2]},{distance:.2f}\n")
     distances.sort(key=lambda x: x.distance)
     return distances
 
 def get_stitches(img):
+    """
+    Given an image, return the RGB color of each pixel in the image.
+
+    Args:
+        img (PIL.Image): An image
+
+    Returns:
+        JSON formatted str: The RGB color of each pixel in the image in format "rgb(r,g,b)"
+    """
     arr = np.asarray(img)
-    rgb_arr = np.apply_along_axis(arrToRgb, 2, arr)
+    rgb_arr = np.apply_along_axis(flattenRgb, 2, arr)
     pixels = json.dumps(rgb_arr,cls=NumpyArrayEncoder)
     return pixels
 
-def save_img(img,filepath):
-    return img.save(filepath)
+def rgbToStr(arr):
+    """
+    Converts a single RGB color from a 3-element array to a string.
 
-def arrToRgb(arr):
-    return f"rgb({arr[0]},{arr[1]},{arr[2]})"
+    Args:
+        arr (array[int]): RGB color [r,g,b]
+
+    Returns:
+        str: RGB color "rgb(r,g,b)"
+    """
+    return "rgb(" + str(arr[0]) + "," + str(arr[1])  + "," + str(arr[2]) + ")"
+
+def flattenRgb(arr):
+    """
+    Flattens a single RGB color from a 3-element array to a 1-element array.
+
+    Args:
+        arr (array[int]): RGB color [r,g,b]
+
+    Returns:
+        array[str]: RGB color ["rgb(r,g,b)"]
+    """
+    
+    if isinstance(arr, np.ndarray):
+        arr = arr.tolist()
+        string = rgbToStr(arr)
+        numpyarr = np.array(string,dtype='<U16')
+        return numpyarr
+    else:
+        return rgbToStr(arr)
+    
+def arrToList(arr):
+    """
+    Converts a numpy array to a list
+    Args:
+        arr (array): numpy array to convert
+
+    Returns
+        list: resulting list
+    """
+    if isinstance(arr, np.ndarray):
+        return arr.tolist()
+    return arr
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return list(map( arrToList, list(map( arrToList , obj )) ))
+        return JSONEncoder.default(self, obj)
 
 class ColorDistance:
     def __init__(self,color,ref):
@@ -137,12 +201,6 @@ class ColorDistance:
     def get_distance(self):
         self.distance = np.linalg.norm(np.array(self.ref) - np.array(self.color))
         return self.distance
-
-class NumpyArrayEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return JSONEncoder.default(self, obj)
 
 def respond(err, res=None):
     if err: 
@@ -175,37 +233,42 @@ def lambda_handler(event, context):
             print('Load request body')
             body = json.loads(event['body'])
             print(body)
-            print('Will decode image:')
-            img = re.sub('^data:image/.+;base64,', '',body['imgBase64'])
-            print(img)
+
             print('Decoding image')
+            img = re.sub('^data:image/.+;base64,', '',body['imgBase64'])
             img = BytesIO(base64.b64decode(img))
+
             print('Getting pattern settings')
             num_colors = int(body['numColors'])
             gauge = (float(body['gaugeStitches']),float(body['gaugeRows']))
             width = float(body['width'])
+
             print('Getting stitch counts')
             pattern_stitch_counts = get_pattern_stitch_counts(img,width,gauge)
             print(pattern_stitch_counts)
+
             print('Creating stitch chart')
             chart = create_stitch_chart(img,pattern_stitch_counts)
-            print('Saving stitch chart image')
-            tmpfile = '/tmp/tmp.png'
-            img=save_img(chart,tmpfile)
-            print('Getting color palette from image')
-            palette = get_palette(tmpfile,num_colors)
-            print('Applying palette to stitch chart')
-            converted_img = apply_palette(chart,palette)
-            print('Created image')
-            print(converted_img)
-            print('Getting array of stitches')
-            pixels = get_stitches(converted_img)
-            print(pixels)
-            print('Palette')
+
+            print('Getting color palette from stitch chart')
+            palette = get_palette_from_file(num_colors)
             print(palette.colors)
+
+            print('Applying palette to stitch chart')
+            chart_with_palette = apply_palette(chart,palette)
+
+            print('Created chart with palette')
+            print(chart_with_palette)
+
+            print('Getting array of stitches')
+            stitches = get_stitches(chart_with_palette)
+            print(stitches)
+
+            print('Returning response')
+            json_palette = list(map( rgbToStr, list(palette.colors.keys()) ))
             json_response = {
-                'pattern': json.loads(pixels),
-                'palette': list(map( arrToRgb, list(palette.colors.keys()) )),
+                'pattern': json.loads(stitches),
+                'palette': json_palette,
                 'gaugeStitches': gauge[0],
                 'gaugeRows': gauge[1]
             }

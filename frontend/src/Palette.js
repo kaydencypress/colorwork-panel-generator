@@ -22,9 +22,9 @@ function Palette(props) {
                         ? (selectRef.current.getValue())[0].value 
                         : defaultColor
                     )) | (state.isSelected && isPainting)
-                    ? '2px solid black' 
+                    ? '3px solid white' 
                     : state.isFocused 
-                        ? '1px solid grey' 
+                        ? '2px solid grey' 
                         : 'none'
             }
         },

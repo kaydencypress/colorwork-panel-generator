@@ -108,25 +108,6 @@ def create_stitch_chart(in_file,pattern_size,out_file='/tmp/tmp.png'):
     img.save(out_file)
     return img
 
-def get_palette_distances(palette):
-    """
-    Given a color palette, calculate the Euclidian distances between each color and the other colors.
-
-    Args:
-        palette (PIL.ImagePalette.ImagePalette): A color palette.
-    
-    Returns:
-        list of ColorDistances: A list containing color pairs and the Euclidian distance between them, sorted by ascending distance.
-    """
-    distances = []
-    for color in palette.colors.keys():
-        for ref_color in palette.colors.keys():
-            dist = ColorDistance(color,ref_color)
-            dist.get_distance()
-            distances.append(dist)
-    distances.sort(key=lambda x: x.distance)
-    return distances
-
 def get_stitches(img):
     """
     Given an image, return the RGB color of each pixel in the image.
@@ -191,16 +172,6 @@ class NumpyArrayEncoder(JSONEncoder):
         if isinstance(obj, np.ndarray):
             return list(map( arrToList, list(map( arrToList , obj )) ))
         return JSONEncoder.default(self, obj)
-
-class ColorDistance:
-    def __init__(self,color,ref):
-        self.color = color
-        self.ref = ref
-        self.distance = 0
-    
-    def get_distance(self):
-        self.distance = np.linalg.norm(np.array(self.ref) - np.array(self.color))
-        return self.distance
 
 def respond(err, res=None):
     if err: 

@@ -39,7 +39,6 @@ function Palette(props) {
             return {
                 ...styles,
                 display: 'flex',
-                minWidth: '200px',
                 margin: 0,
                 position: 'auto'
             }

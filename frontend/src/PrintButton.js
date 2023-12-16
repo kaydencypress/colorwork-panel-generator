@@ -21,7 +21,7 @@ function PrintButton(props) {
     }, [orientation]);
 
     return (
-        <button onClick={() => {window.print()}}><FontAwesomeIcon icon={icon({name: 'download'})} /></button>
+        <button onClick={() => {window.print()}}><FontAwesomeIcon icon={icon({name: 'print'})} /></button>
     );
 }
 

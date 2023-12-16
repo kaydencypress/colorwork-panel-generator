@@ -1,8 +1,8 @@
 .palette {
     display: flex;
-    justify-content: center;
+	flex-wrap: wrap;
     align-items: stretch;
-    border-radius: 10px;
+	justify-content: center;
     height: 35px
 }
 
@@ -10,10 +10,10 @@ button {
     display: flex;
     align-items: center;
     font-size:14px;
-	padding:10px 15px;
+	padding:10px;
+	margin: 10px;
 	width:auto;
 	background:#1abc9c;
-	border-radius: 10px;
 	border:none;
 	color:white;
 	cursor:pointer;
@@ -24,21 +24,13 @@ button {
 	        transition:0.2s ease all;
 }
 
-.edit-btn {
-	border-radius: 10px 0 0 10px;
-}
-
-.paint-btn {
-	border-radius: 0 10px 10px 0;
-}
-
 .selected {
 	background:#12826c;
 }
 
 .palette-list {
 	margin: 0;
-	padding: 0
+	padding: 0;
 }
 
 li {

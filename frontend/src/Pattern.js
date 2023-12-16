@@ -15,7 +15,7 @@ function Pattern(props) {
 
     const style = { 
         aspectRatio: imgAspectRatio,
-        height: zoom ? `${0.8*zoom}vh` : '80vh'
+        height: zoom ? `${0.9*zoom}vh` : '90vh'
     }
 
     return (

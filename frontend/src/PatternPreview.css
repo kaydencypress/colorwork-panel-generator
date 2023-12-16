@@ -1,12 +1,13 @@
 .view-window {
-    background-color: #F5F5F5;
+    background-color: rgba(0, 0, 0, 0.05);
     height: 100%;
+    width: 100%;
 }
 
 .preview-page {
     height: 100vh;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 @media print {

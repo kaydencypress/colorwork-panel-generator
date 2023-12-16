@@ -17,9 +17,9 @@ function Controls(props) {
         <div className='control-container'>
             <div className='controls'>
                 <BackButton />
+                <PrintButton orientation={orientation} />
                 <Palette palette={palette} isPainting={isPainting} setIsPainting={setIsPainting} selectRef={selectRef}/>
                 <Zoom zoom={zoom} setZoom={setZoom} />
-                <PrintButton orientation={orientation} />
             </div>
         </div>
     )

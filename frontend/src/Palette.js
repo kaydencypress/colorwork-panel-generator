@@ -17,6 +17,7 @@ function Palette(props) {
                 backgroundColor: state.value,
                 aspectRatio: 1,
                 height: '35px',
+                width: '45px',
                 border: (isPainting & state.value === (
                     (selectRef.current.hasOwnProperty('getValue') && (selectRef.current.getValue()).length > 0)
                         ? (selectRef.current.getValue())[0].value 
@@ -32,6 +33,8 @@ function Palette(props) {
             return {
                 ...styles,
                 display: 'flex',
+                flexWrap: 'wrap',
+                width: '90px',
                 padding: 0
             }
         },
@@ -40,6 +43,7 @@ function Palette(props) {
                 ...styles,
                 display: 'flex',
                 margin: 0,
+                width: '90px',
                 position: 'auto'
             }
         },
@@ -55,9 +59,10 @@ function Palette(props) {
 
     return(
         <div className='palette'>
-            <button className='edit-btn'> <FontAwesomeIcon icon={icon({name: 'pencil'})} /> </button>
-                <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor}></Select>
-            <button className={isPainting ? 'paint-btn selected' : 'paint-btn'} onClick={() => setIsPainting(!isPainting)}> <FontAwesomeIcon icon={icon({name: 'fill-drip'})} /> </button>
+            <button > <FontAwesomeIcon icon={icon({name: 'palette'})} /> </button>
+            <button className={isPainting ? 'selected' : undefined} onClick={() => setIsPainting(!isPainting)}> <FontAwesomeIcon icon={icon({name: 'fill-drip'})} /> </button>
+            <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor}></Select>
+            
         </div>
     )
 }

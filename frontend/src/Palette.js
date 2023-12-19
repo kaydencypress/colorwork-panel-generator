@@ -1,15 +1,18 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
-import './Palette.css'
+import './Palette.css';
 import Select from 'react-select';
+import PaintButton from './PaintButton';
+import PaletteButton from './PaletteButton';
 
 function Palette(props) { 
     const palette = props.palette;
     const isPainting = props.isPainting;
     const setIsPainting = props.setIsPainting;
+    const isEditingPalette = props.isEditingPalette;
+    const setIsEditingPalette = props.setIsEditingPalette;
     const defaultColor = palette[0].value
     const selectRef = props.selectRef;
+    
     const colourStyles: StylesConfig<ColourOption> = {
         option: (styles, state) => {
             return {
@@ -18,13 +21,12 @@ function Palette(props) {
                 aspectRatio: 1,
                 height: '35px',
                 width: '45px',
-                border: (isPainting & state.value === (
-                    (selectRef.current.hasOwnProperty('getValue') && (selectRef.current.getValue()).length > 0)
-                        ? (selectRef.current.getValue())[0].value 
-                        : defaultColor
-                    )) | (state.isSelected && isPainting)
+                border: ((isPainting | isEditingPalette) & // only highlight selected color if the user is painting or editing the palette
+                    state.value === ((selectRef.current.hasOwnProperty('getValue') && (selectRef.current.getValue()).length > 0) // check if there is a user-selected color
+                        ? (selectRef.current.getValue())[0].value // highlight this color if this color is the user-selected color
+                        : defaultColor)) // highlight this color if there is NOT a user-selected color, and this color is the default color
                     ? '3px solid white' 
-                    : state.isFocused 
+                    : state.isFocused
                         ? '2px solid grey' 
                         : 'none'
             }
@@ -59,10 +61,9 @@ function Palette(props) {
 
     return(
         <div className='palette'>
-            <button > <FontAwesomeIcon icon={icon({name: 'palette'})} /> </button>
-            <button className={isPainting ? 'selected' : undefined} onClick={() => setIsPainting(!isPainting)}> <FontAwesomeIcon icon={icon({name: 'fill-drip'})} /> </button>
+            <PaletteButton isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} isPainting={isPainting} setIsPainting={setIsPainting}/>
+            <PaintButton isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette}/>
             <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor}></Select>
-            
         </div>
     )
 }

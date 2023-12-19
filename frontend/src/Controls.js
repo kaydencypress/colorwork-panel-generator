@@ -8,9 +8,11 @@ function Controls(props) {
     const orientation = props.orientation;
     const palette = props.palette;
     const isPainting = props.isPainting;
+    const setIsPainting = props.setIsPainting;
+    const isEditingPalette = props.isEditingPalette;
+    const setIsEditingPalette = props.setIsEditingPalette;
     const zoom = props.zoom;
     const setZoom = props.setZoom;
-    const setIsPainting = props.setIsPainting;
     const selectRef = props.selectRef;
 
     return (
@@ -18,7 +20,7 @@ function Controls(props) {
             <div className='controls'>
                 <BackButton />
                 <PrintButton orientation={orientation} />
-                <Palette palette={palette} isPainting={isPainting} setIsPainting={setIsPainting} selectRef={selectRef}/>
+                <Palette palette={palette} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} selectRef={selectRef}/>
                 <Zoom zoom={zoom} setZoom={setZoom} />
             </div>
         </div>

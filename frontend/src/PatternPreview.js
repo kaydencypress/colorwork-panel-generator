@@ -3,6 +3,7 @@ import Pattern from './Pattern';
 import Controls from './Controls';
 import './PatternPreview.css';
 import { useActionData } from "react-router-dom";
+import ColorPicker from './ColorPicker';
 
 function PatternPreview() {
     const data = useActionData().data;
@@ -10,6 +11,7 @@ function PatternPreview() {
     const numRows = pattern.length;
     const numColumns = pattern[0].length;
     const [ isPainting, setIsPainting ] = useState(false);
+    const [ isEditingPalette, setIsEditingPalette ] = useState(false);
     const [ zoom, setZoom ] = useState(100);
     
     const gaugeStitches = data.gaugeStitches;
@@ -28,7 +30,8 @@ function PatternPreview() {
 
     return (
         <div className='preview-page'>
-            <Controls palette={rgbPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} zoom={zoom} setZoom={setZoom} selectRef={selectRef} />
+            <Controls palette={rgbPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} zoom={zoom} setZoom={setZoom} selectRef={selectRef} />
+            {isEditingPalette && <ColorPicker selectRef={selectRef}/>}
             <Pattern pattern={pattern} setPattern={setPattern} imgAspectRatio={imgAspectRatio} orientation={orientation} stitchAspectRatio={stitchAspectRatio} zoom={zoom} isPainting={isPainting} selectRef={selectRef} />
         </div>
     )

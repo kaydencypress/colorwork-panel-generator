@@ -10,11 +10,12 @@ button {
     display: flex;
     align-items: center;
     font-size:14px;
-	padding:10px;
-	margin: 10px;
-	width:auto;
+	padding:10px 15px;
+    margin: 0;
+	width:45px;
 	background:#1abc9c;
-	border:none;
+    border-radius: 0;
+	border:1px solid white;
 	color:white;
 	cursor:pointer;
 	-webkit-transition:0.2s ease all;

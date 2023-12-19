@@ -84,11 +84,7 @@ const PatternForm = () => {
             <input
                 name='imgBase64'
                 type='hidden'
-                value={
-                    formData
-                    ? formData.image
-                    : undefined
-                }
+                value={formData && formData.image}
             />
             <br/>
             <label htmlFor='numColors'>Number of Colors</label>

@@ -3,6 +3,7 @@ import './Palette.css';
 import Select from 'react-select';
 import PaintButton from './PaintButton';
 import PaletteButton from './PaletteButton';
+import { strToRgbObj } from './Helper';
 
 function Palette(props) { 
     const palette = props.palette;
@@ -12,6 +13,13 @@ function Palette(props) {
     const setIsEditingPalette = props.setIsEditingPalette;
     const defaultColor = palette[0].value
     const selectRef = props.selectRef;
+    const setSelectedColor = props.setSelectedColor;
+    const setNewColor = props.setNewColor;
+
+    const handleChange = (e) => {
+        setSelectedColor(strToRgbObj(e.value));
+        setNewColor(strToRgbObj(e.value));
+    }
     
     const colourStyles: StylesConfig<ColourOption> = {
         option: (styles, state) => {
@@ -46,7 +54,8 @@ function Palette(props) {
                 display: 'flex',
                 margin: 0,
                 width: '90px',
-                position: 'auto'
+                position: 'auto',
+                boxShadow: 'none'
             }
         },
         control: (styles, state) => {
@@ -63,7 +72,7 @@ function Palette(props) {
         <div className='palette'>
             <PaletteButton isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} isPainting={isPainting} setIsPainting={setIsPainting}/>
             <PaintButton isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette}/>
-            <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor}></Select>
+            <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor} onChange={handleChange}></Select>
         </div>
     )
 }

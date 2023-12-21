@@ -1,0 +1,18 @@
+.color-picker-container {
+    display: flex;
+    flex-flow: column wrap;
+    -webkit-box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.3); 
+    box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.3);
+    z-index: 1;
+    background: white;
+}
+
+.color-picker-btns {
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+}
+
+.chrome-picker {
+    box-shadow: none !important;
+}

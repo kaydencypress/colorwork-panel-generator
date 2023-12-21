@@ -1,15 +1,23 @@
 .control-container {
-    overflow: wrap;
-    -webkit-box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.4); 
-    box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: flex-start;
+    -webkit-box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.3); 
+    box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.3);
+    width: 90px;
+    height: 100%;
+}
+
+.left-pane {
+    display: flex;
+    align-items: flex-start;
     width: 90px;
 }
 
 .controls {
     display: flex;
-    justify-content: center;
+    flex-direction: row;
+    align-items: flex-start;
     width: 90px;
-    margin: auto;
     flex-wrap: wrap;
 }
 

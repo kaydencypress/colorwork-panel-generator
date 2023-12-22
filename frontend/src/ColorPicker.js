@@ -14,6 +14,7 @@ function ColorPicker(props) {
 
   const handleCancel = () => {
     setIsEditingPalette(false);
+    setNewColor(selectedColorId.value);
   }
 
   const handleOk = (e) => {

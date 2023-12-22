@@ -21,8 +21,7 @@ const Stitch = (props) => {
 
     const handleClick = (evt) => {
         if (isPainting) {
-            const color = (selectRef.current.getValue()).length > 0  ? (selectRef.current.getValue())[0].value : selectRef.current.props.value;
-            setColor(color);
+            setColor(selectedColorId.value);
             pattern[row][column] = selectedColorId.label;
             setPattern(pattern);
         }

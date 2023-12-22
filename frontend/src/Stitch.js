@@ -7,6 +7,7 @@ const Stitch = (props) => {
     const row = props.row;
     const column = props.column;
     const isPainting = props.isPainting;
+    const selectedColorId = props.selectedColorId;
     const selectRef = props.selectRef;
 
     const [color, setColor] = useState(initColor);
@@ -22,7 +23,7 @@ const Stitch = (props) => {
         if (isPainting) {
             const color = (selectRef.current.getValue()).length > 0  ? (selectRef.current.getValue())[0].value : selectRef.current.props.value;
             setColor(color);
-            pattern[row][column] = color;
+            pattern[row][column] = selectedColorId.label;
             setPattern(pattern);
         }
     }

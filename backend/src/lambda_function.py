@@ -55,8 +55,8 @@ def get_palette_from_img(num_colors,img):
         PIL.ImagePalette.ImagePalette: The color palette of the image.
     """
     img = img.quantize(num_colors)
-    colors = img.getpalette() # Returned as 265-length list [r, g, b, r, g, b, ... 0, 0, 0, ...]
-    colors = colors[0:num_colors*3] 
+    colors = img.getpalette() # Returned as 768-length list [r, g, b, r, g, b, ... 0, 0, 0, ...]
+    colors = colors[0:num_colors*3] # Drop extraneous zeros
     return get_palette_from_colors(colors)
 
 def get_palette_from_colors(colors):
@@ -108,53 +108,22 @@ def create_stitch_chart(in_file,pattern_size,out_file='/tmp/tmp.png'):
     img.save(out_file)
     return img
 
-def get_stitches(img):
+def get_stitches(img,palette):
     """
-    Given an image, return the RGB color of each pixel in the image.
+    Given an image, return the palette color ID of each pixel in the image.
 
     Args:
         img (PIL.Image): An image
 
     Returns:
-        JSON formatted str: The RGB color of each pixel in the image in format "rgb(r,g,b)"
+        JSON formatted str: The palette color ID of each pixel in the image
     """
     arr = np.asarray(img)
-    rgb_arr = np.apply_along_axis(flattenRgb, 2, arr)
-    pixels = json.dumps(rgb_arr,cls=NumpyArrayEncoder)
+    arr = np.apply_along_axis(color_to_id, 2, arr, palette)
+    pixels = json.dumps(arr,cls=NumpyArrayEncoder)
     return pixels
-
-def rgbToStr(arr):
-    """
-    Converts a single RGB color from a 3-element array to a string.
-
-    Args:
-        arr (array[int]): RGB color [r,g,b]
-
-    Returns:
-        str: RGB color "rgb(r,g,b)"
-    """
-    return "rgb(" + str(arr[0]) + "," + str(arr[1])  + "," + str(arr[2]) + ")"
-
-def flattenRgb(arr):
-    """
-    Flattens a single RGB color from a 3-element array to a 1-element array.
-
-    Args:
-        arr (array[int]): RGB color [r,g,b]
-
-    Returns:
-        array[str]: RGB color ["rgb(r,g,b)"]
-    """
     
-    if isinstance(arr, np.ndarray):
-        arr = arr.tolist()
-        string = rgbToStr(arr)
-        numpyarr = np.array(string,dtype='<U16')
-        return numpyarr
-    else:
-        return rgbToStr(arr)
-    
-def arrToList(arr):
+def nparr_to_list(arr):
     """
     Converts a numpy array to a list
     Args:
@@ -167,10 +136,25 @@ def arrToList(arr):
         return arr.tolist()
     return arr
 
+def color_to_id(color,palette):
+    """
+    Given an RGB color, return the ID of the corresponding palette color
+
+    Args:
+        color (array of int): An RGB color [r, g, b]
+
+    Returns: 
+        int: The ID of the corresponding color in the palette
+    """
+    for palette_color in palette.items():
+        if (color.tolist() == list(palette_color[1])):
+            return palette_color[0]
+    return color
+
 class NumpyArrayEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
-            return list(map( arrToList, list(map( arrToList , obj )) ))
+            return list(map( nparr_to_list, list(map( nparr_to_list , obj )) ))
         return JSONEncoder.default(self, obj)
 
 def respond(err, res=None):
@@ -223,7 +207,8 @@ def lambda_handler(event, context):
 
             print('Getting color palette from stitch chart')
             palette = get_palette_from_file(num_colors)
-            print(palette.colors)
+            palette_colors = dict((v,k) for k,v in palette.colors.items())
+            print(palette_colors)
 
             print('Applying palette to stitch chart')
             chart_with_palette = apply_palette(chart,palette)
@@ -232,14 +217,13 @@ def lambda_handler(event, context):
             print(chart_with_palette)
 
             print('Getting array of stitches')
-            stitches = get_stitches(chart_with_palette)
+            stitches = get_stitches(chart_with_palette,palette_colors)
             print(stitches)
 
             print('Returning response')
-            json_palette = list(map( rgbToStr, list(palette.colors.keys()) ))
             json_response = {
                 'pattern': json.loads(stitches),
-                'palette': json_palette,
+                'palette': palette_colors,
                 'gaugeStitches': gauge[0],
                 'gaugeRows': gauge[1]
             }

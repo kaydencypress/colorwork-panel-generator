@@ -8,7 +8,7 @@ const useFormData = async ({request,params}) => {
     let apiRequest = {
         host: "f81ipduqi3.execute-api.us-east-1.amazonaws.com",
         method: "POST",
-        url: "https://f81ipduqi3.execute-api.us-east-1.amazonaws.com/default/colorwork_pattern",
+        url: "https://f81ipduqi3.execute-api.us-east-1.amazonaws.com/dev/colorwork_pattern",
         data: formData,
         body: JSON.stringify(formData),
         path: "/default/colorwork_pattern",

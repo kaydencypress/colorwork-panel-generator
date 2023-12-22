@@ -3,7 +3,6 @@ import './Palette.css';
 import Select from 'react-select';
 import PaintButton from './PaintButton';
 import PaletteButton from './PaletteButton';
-import { strToRgbObj } from './Helper';
 
 function Palette(props) { 
     const palette = props.palette;
@@ -11,14 +10,15 @@ function Palette(props) {
     const setIsPainting = props.setIsPainting;
     const isEditingPalette = props.isEditingPalette;
     const setIsEditingPalette = props.setIsEditingPalette;
-    const defaultColor = palette[0].value
+    const defaultColor = palette[0].value;
     const selectRef = props.selectRef;
-    const setSelectedColor = props.setSelectedColor;
+    const setSelectedColorId = props.setSelectedColorId;
     const setNewColor = props.setNewColor;
 
     const handleChange = (e) => {
-        setSelectedColor(strToRgbObj(e.value));
-        setNewColor(strToRgbObj(e.value));
+        console.log(e);
+        setSelectedColorId(e);
+        setNewColor(e.value);
     }
     
     const colourStyles: StylesConfig<ColourOption> = {
@@ -26,6 +26,7 @@ function Palette(props) {
             return {
                 ...styles,
                 backgroundColor: state.value,
+                color: 'transparent',
                 aspectRatio: 1,
                 height: '35px',
                 width: '45px',

@@ -6,11 +6,14 @@ function strToRgbObj (str) {
     return str;
 }
 
-function rgbObjToStr (arr) {
-    if (typeof arr === 'object' || arr instanceof Object) {
-        return `rgb(${arr['r']},${arr['g']},${arr['b']})`;
+function toRgbStr (obj) {
+    if (Array.isArray(obj)) {
+        return `rgb(${obj[0]},${obj[1]},${obj[2]})`;
     }
-    return arr;
+    if (typeof obj === 'object' || obj instanceof Object) {
+        return `rgb(${obj['r']},${obj['g']},${obj['b']})`;
+    }
+    return obj;
 }
 
-export { strToRgbObj, rgbObjToStr };
+export { strToRgbObj, toRgbStr };

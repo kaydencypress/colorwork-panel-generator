@@ -3,7 +3,7 @@ import Pattern from './Pattern';
 import Controls from './Controls';
 import './PatternPreview.css';
 import { useActionData } from "react-router-dom";
-import { strToRgbObj } from './Helper';
+import { toRgbStr } from './Helper';
 
 function PatternPreview() {
     const data = useActionData().data;
@@ -20,19 +20,21 @@ function PatternPreview() {
     const imgAspectRatio = (numColumns / gaugeStitches) / (numRows / gaugeRows);
     const orientation = imgAspectRatio >= 1 ? 'landscape' : 'portrait';
     
-    let rgbPalette = [];
-    data.palette.forEach(element => {
-        rgbPalette.push({value: element, label: ""});
-    });
-    const defaultColor = rgbPalette[0].value;
-    const selectRef = useRef(defaultColor);
-    const [ palette, setPalette ] = useState(rgbPalette);
-    const [ selectedColor, setSelectedColor ] = useState(strToRgbObj(defaultColor));
+    console.log(data.palette)
+    let colorOption = [];
+    for (let id in data.palette) {
+        console.log(id)
+        console.log(toRgbStr(data.palette[id]))
+        colorOption.push({value: toRgbStr(data.palette[id]), label: id});
+    }
+    const selectRef = useRef(data.palette[0]);
+    const [ palette, setPalette ] = useState(colorOption);
+    const [ selectedColorId, setSelectedColorId ] = useState(palette[0]);
 
     return (
         <div className='preview-page'>
-            <Controls palette={palette} setPalette={setPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} zoom={zoom} setZoom={setZoom} selectRef={selectRef} selectedColor={selectedColor} setSelectedColor={setSelectedColor}/>
-            <Pattern pattern={pattern} setPattern={setPattern} imgAspectRatio={imgAspectRatio} orientation={orientation} stitchAspectRatio={stitchAspectRatio} zoom={zoom} isPainting={isPainting} selectRef={selectRef} />
+            <Controls palette={palette} setPalette={setPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} zoom={zoom} setZoom={setZoom} selectRef={selectRef} selectedColorId={selectedColorId} setSelectedColorId={setSelectedColorId}/>
+            <Pattern pattern={pattern} setPattern={setPattern} palette={palette} selectedColorId={selectedColorId} imgAspectRatio={imgAspectRatio} orientation={orientation} stitchAspectRatio={stitchAspectRatio} zoom={zoom} isPainting={isPainting} selectRef={selectRef} />
         </div>
     )
 }

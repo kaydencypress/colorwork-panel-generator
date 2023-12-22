@@ -1,14 +1,14 @@
 import React from 'react';
 import ChromePicker from 'react-color';
 import './ColorPicker.css';
-import { strToRgbObj, rgbObjToStr } from './Helper';
+import { toRgbStr } from './Helper';
 
 function ColorPicker(props) {
   const setIsEditingPalette = props.setIsEditingPalette;
-  const setSelectedColor = props.setSelectedColor;
+  const selectedColorId = props.selectedColorId;
+  const setSelectedColorId = props.setSelectedColorId;
   const palette = props.palette;
   const setPalette = props.setPalette;
-  const initColor = strToRgbObj(props.selectedColor);
   const newColor = props.newColor;
   const setNewColor = props.setNewColor;
 
@@ -18,20 +18,17 @@ function ColorPicker(props) {
 
   const handleOk = (e) => {
     let newPalette = [...palette];
-    newPalette.forEach((color,index) => {
-      if (color.value === rgbObjToStr(initColor)) {
-        (newPalette[index]).value = rgbObjToStr(newColor)
-      }
-    });
+    const index = parseInt(selectedColorId.label);
+    newPalette[index].value = toRgbStr(newColor);
+    setSelectedColorId(newPalette[index]);
     setPalette(newPalette);
-    setSelectedColor(rgbObjToStr(newColor));
     setIsEditingPalette(false);
   }
 
   return (
     <div className='color-picker-container'>
       <ChromePicker
-          color={strToRgbObj(newColor)}
+          color={toRgbStr(newColor)}
           onChange={(c) => {
             setNewColor(c.rgb);
           }}

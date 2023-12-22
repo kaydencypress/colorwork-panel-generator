@@ -8,7 +8,6 @@ const Stitch = (props) => {
     const column = props.column;
     const isPainting = props.isPainting;
     const selectedColorId = props.selectedColorId;
-    const selectRef = props.selectRef;
 
     const [color, setColor] = useState(initColor);
     let stitchStyle = {

@@ -11,12 +11,11 @@ function Palette(props) {
     const isEditingPalette = props.isEditingPalette;
     const setIsEditingPalette = props.setIsEditingPalette;
     const defaultColor = palette[0].value;
-    const selectRef = props.selectRef;
+    const selectedColorId = props.selectedColorId;
     const setSelectedColorId = props.setSelectedColorId;
     const setNewColor = props.setNewColor;
 
     const handleChange = (e) => {
-        console.log(e);
         setSelectedColorId(e);
         setNewColor(e.value);
     }
@@ -30,10 +29,7 @@ function Palette(props) {
                 aspectRatio: 1,
                 height: '35px',
                 width: '45px',
-                border: ((isPainting | isEditingPalette) & // only highlight selected color if the user is painting or editing the palette
-                    state.value === ((selectRef.current.hasOwnProperty('getValue') && (selectRef.current.getValue()).length > 0) // check if there is a user-selected color
-                        ? (selectRef.current.getValue())[0].value // highlight this color if this color is the user-selected color
-                        : defaultColor)) // highlight this color if there is NOT a user-selected color, and this color is the default color
+                border: ( (isPainting | isEditingPalette) & state.value === selectedColorId.value)
                     ? '3px solid white' 
                     : state.isFocused
                         ? '2px solid grey' 
@@ -73,7 +69,7 @@ function Palette(props) {
         <div className='palette'>
             <PaletteButton isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} isPainting={isPainting} setIsPainting={setIsPainting}/>
             <PaintButton isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette}/>
-            <Select ref={selectRef} options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor} onChange={handleChange}></Select>
+            <Select options={palette} menuIsOpen={true} styles={colourStyles} defaultValue={defaultColor} onChange={handleChange}></Select>
         </div>
     )
 }

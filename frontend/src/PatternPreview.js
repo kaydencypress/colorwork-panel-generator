@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, { useState } from 'react';
 import Pattern from './Pattern';
 import Controls from './Controls';
 import './PatternPreview.css';
@@ -27,14 +27,13 @@ function PatternPreview() {
         console.log(toRgbStr(data.palette[id]))
         colorOption.push({value: toRgbStr(data.palette[id]), label: id});
     }
-    const selectRef = useRef(data.palette[0]);
     const [ palette, setPalette ] = useState(colorOption);
     const [ selectedColorId, setSelectedColorId ] = useState(palette[0]);
 
     return (
         <div className='preview-page'>
-            <Controls palette={palette} setPalette={setPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} zoom={zoom} setZoom={setZoom} selectRef={selectRef} selectedColorId={selectedColorId} setSelectedColorId={setSelectedColorId}/>
-            <Pattern pattern={pattern} setPattern={setPattern} palette={palette} selectedColorId={selectedColorId} imgAspectRatio={imgAspectRatio} orientation={orientation} stitchAspectRatio={stitchAspectRatio} zoom={zoom} isPainting={isPainting} selectRef={selectRef} />
+            <Controls palette={palette} setPalette={setPalette} orientation={orientation} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} zoom={zoom} setZoom={setZoom} selectedColorId={selectedColorId} setSelectedColorId={setSelectedColorId}/>
+            <Pattern pattern={pattern} setPattern={setPattern} palette={palette} selectedColorId={selectedColorId} imgAspectRatio={imgAspectRatio} orientation={orientation} stitchAspectRatio={stitchAspectRatio} zoom={zoom} isPainting={isPainting} />
         </div>
     )
 }

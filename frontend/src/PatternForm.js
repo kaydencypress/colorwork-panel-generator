@@ -37,8 +37,7 @@ const PatternForm = () => {
         numColors: 10,
         gaugeStitches: 20,
         gaugeRows: 26,
-        width: 12,
-        contrast: 1.0
+        width: 12
     });
 
     const convertBase64 = (file) => {

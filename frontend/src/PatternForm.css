@@ -11,6 +11,7 @@ input[type=file]{
 	width:auto;
 	background:#1abc9c;
 	border:none;
+	font-size: 1rem;
     border-radius:20px;
 	color:white;
 	cursor:pointer;
@@ -22,31 +23,33 @@ input[type=file]{
 }
 
 .file-name {
-	font-size: 14px;
+	font-size: 0.9rem;
 	max-height: 35px
+}
+
+h1 {
+	font-size: 1.5rem;
+	font-weight: 400;
 }
 
 body {
 	margin:0;
-	font-family:arial,tahoma,sans-serif;
-	font-size:18px;
-	font-weight:normal;
 	direction:ltr;
     background:white;
 }
 
 .pattern-form {
 	margin: 0 auto;
-	padding: 7.5vh 20px;
+	padding: 20px;
 	width: 85vw;
 	max-width:400px;
-	height:85vh;
+	height:80vh;
 	background:white;
 	border-radius:10px;
 }
 
 form label {
-	font-size:18px;
+	font-size:1.1rem;
 	color:darkgray;
 	cursor:pointer;
 }
@@ -64,7 +67,7 @@ form input {
 	outline:none;
 	border:1px solid #bbb;
 	border-radius:20px;
-	font-size: 18px;
+	font-size: 1rem;
 	display:inline-block;
 	-webkit-box-sizing:border-box;
 	   -moz-box-sizing:border-box;

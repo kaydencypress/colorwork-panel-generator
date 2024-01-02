@@ -67,70 +67,74 @@ const PatternForm = () => {
     };
 
     return (
-        <Form method='post' action='pattern/new' className='pattern-form'>
-            <label htmlFor='image' className = 'file-selector' type='file'>
-                Upload Image
-            </label>
-            <input
-                id='image'
-                name='image'
-                type='file'
-                onChange={handleChange}
-                accept=".jpg, .jpeg, .png"
-                required
-            />
-            {formData.fileName ? <p className='file-name'>{formData.fileName}</p> : <p>No image selected</p>}
-            <input
-                name='imgBase64'
-                type='hidden'
-                value={formData && formData.image}
-            />
-            <br/>
-            <label htmlFor='numColors'>Number of Colors</label>
-            <input
-                name='numColors'
-                type='number'
-                min='2'
-                max='20'
-                value={formData.numColors}
-                onChange={handleChange}
-                required
-            />
-            <br/>
-            <label htmlFor='gaugeStitches'>4" Gauge: Stitches</label>
-            <input
-                name='gaugeStitches'
-                type='number'
-                min='4'
-                max='50'
-                value={formData.gaugeStitches}
-                onChange={handleChange}
-                required
-            />
-            <label htmlFor='rows'>4" Gauge: Rows</label>
-            <input
-                name='gaugeRows'
-                type='number'
-                min='4'
-                max='50'
-                value={formData.gaugeRows}
-                onChange={handleChange}
-                required
-            />
-            <br/>
-            <label htmlFor='width'>Pattern Width (Inches)</label>
-            <input
-                name='width'
-                type='number'
-                min='1'
-                max='50'
-                value={formData.width}
-                onChange={handleChange}
-                required
-            />
-            <br/>
-            <input type='submit' name='submit' value='Submit'/>
-        </Form>
+        <div>
+            <h1>Create a Knitting Pattern from an Image</h1>
+            <Form method='post' action='pattern/new' className='pattern-form'>
+                <label htmlFor='image' className = 'file-selector' type='file'>
+                    Upload Image
+                </label>
+                <input
+                    id='image'
+                    name='image'
+                    type='file'
+                    onChange={handleChange}
+                    accept=".jpg, .jpeg, .png"
+                    required
+                />
+                {formData.fileName ? <p className='file-name'>{formData.fileName}</p> : <p className='file-name'>No image selected</p>}
+                <input
+                    name='imgBase64'
+                    type='hidden'
+                    value={formData && formData.image}
+                />
+                <br/>
+                <label htmlFor='numColors'>Number of Colors</label>
+                <input
+                    name='numColors'
+                    type='number'
+                    min='2'
+                    max='20'
+                    value={formData.numColors}
+                    onChange={handleChange}
+                    required
+                />
+                <br/>
+                <label htmlFor='gaugeStitches'>4" Gauge: Stitches</label>
+                <input
+                    name='gaugeStitches'
+                    type='number'
+                    min='4'
+                    max='50'
+                    value={formData.gaugeStitches}
+                    onChange={handleChange}
+                    required
+                />
+                <label htmlFor='rows'>4" Gauge: Rows</label>
+                <input
+                    name='gaugeRows'
+                    type='number'
+                    min='4'
+                    max='50'
+                    value={formData.gaugeRows}
+                    onChange={handleChange}
+                    required
+                />
+                <br/>
+                <label htmlFor='width'>Pattern Width (Inches)</label>
+                <input
+                    name='width'
+                    type='number'
+                    min='1'
+                    max='50'
+                    value={formData.width}
+                    onChange={handleChange}
+                    required
+                />
+                <br/>
+                <input type='submit' name='submit' value='Submit'/>
+            </Form>
+
+        </div>
     );
 }
 

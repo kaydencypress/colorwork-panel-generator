@@ -1,27 +1,24 @@
 .three-digit {
     position: relative;
-    left: -38px;
+    left: -35px;
 }
 
 .two-digit {
     position: relative;
-    left: -45px;
-}
-
-body {
-    font-size: 14px
+    left: -42px;
 }
 
 input {
     border:1px solid #bbb;
 	border-radius:20px;
-	font-size: 14px;
-    width: 55px;
+    width: 50px;
     margin: 0 5px;
+    font-size: 12px;
 }
 
 .zoom-container {
     position: absolute;
     bottom: 10px;
-    left: 5px
+    left: 5px;
+    font-size: 12px;
 }

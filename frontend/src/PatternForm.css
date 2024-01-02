@@ -21,6 +21,11 @@ input[type=file]{
 	        transition:0.2s ease all;
 }
 
+.file-name {
+	font-size: 14px;
+	max-height: 35px
+}
+
 body {
 	margin:0;
 	font-family:arial,tahoma,sans-serif;

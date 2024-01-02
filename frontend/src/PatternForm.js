@@ -79,7 +79,7 @@ const PatternForm = () => {
                 accept=".jpg, .jpeg, .png"
                 required
             />
-            {formData.fileName ? <p>{formData.fileName}</p> : <p>No image selected</p>}
+            {formData.fileName ? <p className='file-name'>{formData.fileName}</p> : <p>No image selected</p>}
             <input
                 name='imgBase64'
                 type='hidden'

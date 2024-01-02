@@ -16,7 +16,6 @@ function Controls(props) {
     const setIsEditingPalette = props.setIsEditingPalette;
     const zoom = props.zoom;
     const setZoom = props.setZoom;
-    const selectRef = props.selectRef;
     const setSelectedColorId = props.setSelectedColorId;
     const selectedColorId = props.selectedColorId;
     const [ newColor, setNewColor ] = useState(selectedColorId.value);
@@ -27,7 +26,7 @@ function Controls(props) {
                 <div className='controls'>
                     <BackButton />
                     <PrintButton orientation={orientation} />
-                    <Palette palette={palette} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} selectRef={selectRef} selectedColorId={selectedColorId} setSelectedColorId={setSelectedColorId} setNewColor={setNewColor}/>
+                    <Palette palette={palette} isPainting={isPainting} setIsPainting={setIsPainting} isEditingPalette={isEditingPalette} setIsEditingPalette={setIsEditingPalette} selectedColorId={selectedColorId} setSelectedColorId={setSelectedColorId} setNewColor={setNewColor}/>
                     <Zoom zoom={zoom} setZoom={setZoom} />
                 </div>
             </div>

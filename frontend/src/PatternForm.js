@@ -28,6 +28,26 @@ const useFormData = async ({request,params}) => {
     }
 };
 
+const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file)
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      }
+      fileReader.onerror = (error) => {
+        reject(error);
+      }
+    })
+};
+
+const getDisplayFilename = (filename,maxLength=50) => {
+    if (filename.length > maxLength) {
+        return `${filename.slice(0,maxLength-12)}...${filename.slice(-9)}`
+    }
+    return filename
+}
+
 const PatternForm = () => {
     const [formData, setFormData] = useState({
         image: null,
@@ -39,19 +59,6 @@ const PatternForm = () => {
         gaugeRows: 26,
         width: 12
     });
-
-    const convertBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-          const fileReader = new FileReader();
-          fileReader.readAsDataURL(file)
-          fileReader.onload = () => {
-            resolve(fileReader.result);
-          }
-          fileReader.onerror = (error) => {
-            reject(error);
-          }
-        })
-    };
 
     const handleChange = async (evt) =>{
         if (evt.target.type === 'file'){
@@ -67,21 +74,29 @@ const PatternForm = () => {
     };
 
     return (
-        <div>
+        <div className='form-container'>
             <h1>Create a Knitting Pattern from an Image</h1>
-            <Form method='post' action='pattern/new' className='pattern-form'>
-                <label htmlFor='image' className = 'file-selector' type='file'>
-                    Upload Image
-                </label>
-                <input
-                    id='image'
-                    name='image'
-                    type='file'
-                    onChange={handleChange}
-                    accept=".jpg, .jpeg, .png"
-                    required
-                />
-                {formData.fileName ? <p className='file-name'>{formData.fileName}</p> : <p className='file-name'>No image selected</p>}
+            <Form method='post' action='pattern/new'>
+                <div className='file-upload-container'>
+                    <div>
+                        <label htmlFor='image' className = 'file-selector' type='file'>
+                            Upload Image
+                        </label>
+                        <input
+                            id='image'
+                            name='image'
+                            type='file'
+                            onChange={handleChange}
+                            accept=".jpg, .jpeg, .png"
+                            required
+                        />
+                    </div>
+                    <div className='file-name-container'>
+                        <p className='file-name'>
+                            {formData.fileName ? getDisplayFilename(formData.fileName) : 'No image selected'}
+                        </p>
+                    </div>
+                </div>
                 <input
                     name='imgBase64'
                     type='hidden'

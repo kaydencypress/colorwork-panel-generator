@@ -6,12 +6,17 @@ input[type=file]{
 	padding: 0;
 }
 
+.file-upload-container {
+	margin: 20px 0;
+	display: flex;
+	flex-wrap: nowrap;
+}
+
 .file-selector {
 	padding:15px 40px;
-	width:auto;
+	font-size: 1rem;
 	background:#1abc9c;
 	border:none;
-	font-size: 1rem;
     border-radius:20px;
 	color:white;
 	cursor:pointer;
@@ -22,14 +27,21 @@ input[type=file]{
 	        transition:0.2s ease all;
 }
 
-.file-name {
+.file-name-container {
 	font-size: 0.9rem;
-	max-height: 35px
+	flex-wrap: wrap;
+	max-width: 50%;
+	padding-left: 10px;
+}
+
+.file-name {
+	margin: 0;
 }
 
 h1 {
-	font-size: 1.5rem;
+	font-size: 1.3rem;
 	font-weight: 400;
+	max-width: 100%;
 }
 
 body {
@@ -38,14 +50,12 @@ body {
     background:white;
 }
 
-.pattern-form {
-	margin: 0 auto;
+.form-container {
 	padding: 20px;
+	margin: 0 auto;
 	width: 85vw;
 	max-width:400px;
 	height:80vh;
-	background:white;
-	border-radius:10px;
 }
 
 form label {

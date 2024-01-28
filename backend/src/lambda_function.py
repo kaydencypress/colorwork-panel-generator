@@ -101,10 +101,14 @@ def create_stitch_chart(in_file,pattern_size,out_file='/tmp/tmp.png'):
     Returns:
         PIL.Image: The stitch chart as image, where each pixel represents one stitch.
     """
+    print("loading image")
     with Image.open(in_file) as img:
         img.load()
-    img = img.convert('RGB')
+    print("resizing image")
     img = img.resize(pattern_size)
+    print("converting image to RGB")
+    img = img.convert('RGB')
+    print("saving temp file")
     img.save(out_file)
     return img
 

@@ -1,9 +1,7 @@
-# WIP
-
-## Generates a knitting pattern from an image
-1. User uploads source image and configures the number of colors, knitting gauge, and pattern size
-2. Source image is reduced to the limited color palette
-3. Image is converted to knitting pattern chart based on defined gauge and size
-4. *(TO-DO)* User can edit the color palette
-5. User can change colors of individual stitches
-6. Download pattern to PDF
+# Generate a knitting pattern from an image
+1. Upload an image
+2. Configure the number of colors, knitting gauge, and pattern size
+4. The image is converted to a knitting pattern chart based on the selected settings
+5. Edit the color palette as desired
+6. Change the color of individual stitches as needed
+7. Download or print the PDF pattern
